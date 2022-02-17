@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition login-page dark-mode">
+	<div id="Layer1" style="position:absolute; width:100%; height:100%; z-index:-1">
+		<img id="photoShow"  height="100%" width="100%" src="../../static/img/22.jpg"/>
+	</div>
+<div class="col-md-3">
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+      <div class="card-header text-center">
+    <h1 class="h1"><b>DBAdmin</b></h1>
+  </div>
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Sign in to start your session</p>
+
+      <form method="post">
+        <div class="input-group mb-3">
+          <input type="account" class="form-control" name="account" placeholder="Account">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" name="password" placeholder="Password" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" id="remember">
+              <label for="remember">
+                Remember Me
+              </label>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-4">
+            <input type="submit" class="btn btn-primary btn-block" value="登录"></input>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+
+
+      <p class="mb-1">
+        <a href="forgot-password.html">忘记密码？</a>
+      </p>
+       {% for message in get_flashed_messages() %}
+       <div class="pace-flash-danger"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+       {% endfor %}
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+<!-- /.login-box -->
+</div>
+<!-- jQuery -->
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+</body>
+</html>

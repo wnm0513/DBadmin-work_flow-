@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+      <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+
+</head>
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+  <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>用户管理</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">用户管理</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">所有用户</h2>
+                  <div class="card-tools">
+                      <a class="btn btn-primary" href="{{ url_for('AllUser.AddUser') }}">新增用户</a>
+                  </div>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+              <div class="dataTables_wrapper dt-bootstrap4">
+              <div class="table-responsive">
+                <table id="example1" class="table m-0">
+                  <thead>
+                  <tr>
+                    <th>库名</th>
+                    <th>IP</th>
+                    <th>端口</th>
+                    <th>所属部门</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user['account'] }}</td>
+                        <td>{{ user['name'] }}</td>
+                        <td>{{ user['deptname'] }}</td>
+                        <td>{{ user['role_name'] }}</td>
+                        <td>{{ user['email'] }}</td>
+                        <td>{{ user['phone'] }}</td>
+                        <td>{{ user['ctime'] }}</td>
+                        <td>{{ user['last_login'] }}</td>
+                        <td>
+                             {% if user['ismanager'] == 1 %}
+                             <a><span class="badge-success">是</span></a>
+                             {% else %}
+                             <a><span class="badge-dark">否</span></a>
+                             {% endif %}
+                        </td>
+                        <td>
+                            {% if user['status']  == 1 %}
+                            <a><span class="badge-success">是</span></a>
+                            {% else %}
+                           <a><span class="badge-dark">否</span></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+              </div>
+              </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+
+    </section>
+    <!-- /.content -->
+
+  </div>
+
+<!-- jQuery -->
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/jszip/jszip.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+
+<!-- PAGE PLUGINS -->
+<!-- jQuery Mapael -->
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/raphael/raphael.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery-mapael/maps/usa_states.min.js"></script>
+<!-- ChartJS -->
+<script src="../../static/AdminLTE-3.1.0/plugins/chart.js/Chart.min.js"></script>
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+  });
+</script>
+</body>
+</html>

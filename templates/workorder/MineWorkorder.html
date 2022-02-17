@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+
+
+</head>
+
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>我的工单</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">我的工单</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+            <!-- general form elements -->
+            <div class="card card-header-pills">
+                        <div class="card-header">
+            <h3 class="card-title">发起线上申请</h3>
+                        </div>
+          <!-- /.card-header -->
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form>
+                <div class="card-body">
+
+            <div class="callout callout-info">
+                <h5><i class="fas fa-info"></i> Note:</h5>
+                <p>根据需求合理的选择上线类型；</p>
+                <p>提交您要修改的数据对应的SQL语句并以;号分割，语句应以表名.库名的形式，如【update wangkm.dbs set port=3306 where id =1;】，之后开始检查；</p>
+                <p>如SQL检查不通过，请修改直到通过为止。通过后开始提交工单申请，并填写修改数据的原因，等待通过审核；</p>
+                <p>审核通过之后，点击工单详情，可以执行您申请的修改语句，结束流程。如需回滚，查找上线历史SQL；</p>
+
+            </div>
+
+
+                <!-- /.form-group -->
+                <div class="form-group">
+                  <label for="status">上线类型</label>
+                  <select id="status" class="form-control custom-select" style="width: 100%;">
+                    <option selected>--请选择类型--</option>
+                    <option>正常迭代</option>
+                    <option>正常迭代（涉及DDL）</option>
+                    <option>修改线上数据</option>
+                    <option>修改线上数据（涉及DDL）</option>
+                  </select>
+                </div>
+                <!-- /.form-group -->
+
+                      <!-- textarea -->
+                      <div class="form-group">
+                        <label>填写SQL语句</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                      </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
+            <!-- /.card -->
+
+<!-- jQuery -->
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+
+
+</body>
+</html>
