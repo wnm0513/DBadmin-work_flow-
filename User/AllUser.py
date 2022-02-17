@@ -20,7 +20,7 @@ def AllUser():
                              User.ismanager, User.ctime, User.utime, User.role_name,
                              User.last_login, Departments.deptname).join(Departments,
                                                                          Departments.id == User.deptId)
-    return render_template('Usermanage/AllUser.html', users=users)
+    return render_template('Usermanage/AllUser/AllUser.html', users=users)
 
 
 # 新增用户
@@ -77,5 +77,5 @@ def AddUser():
     role_name = UsersRoles.query.all()
     department = Departments.query.all()
 
-    return render_template('Usermanage/AddUser.html', role_name=role_name, department=department)
+    return render_template('Usermanage/AllUser/AddUser.html', role_name=role_name, department=department)
 

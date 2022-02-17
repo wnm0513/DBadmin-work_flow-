@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | General Form Elements</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+   <!-- iCheck for checkboxes and radio inputs -->
+  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+</head>
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<div class="wrapper">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>编辑用户</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="{{ url_for('AllUser.AllUser') }}">返回</a></li>
+              <li class="breadcrumb-item active">编辑用户</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <!-- left column -->
+          <div class="col-sm-6">
+            <!-- general form elements -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">编辑用户</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form method="post">
+                <div class="card-body">
+                    <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Enter name" required>
+                  </div>
+                    <div class="form-group">
+                    <label for="account">账号</label>
+                    <input type="text" class="form-control" name="account" id="account" placeholder="Enter account" required>
+                  </div>
+                    <div class="form-group">
+                    <label for="account">钉钉</label>
+                    <input type="text" class="form-control" name="dingding" id="dingding" placeholder="Enter dingding" required>
+                  </div>
+                    <div class="form-group">
+                    <label for="phone">电话</label>
+                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone" required>
+                  </div>
+                    <div class="form-group">
+                  <label for="deptId">部门</label>
+                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;">
+                    <option selected>--请选择部门--</option>
+                      {% for dept in department %}
+                    <option>{{ dept['deptname'] }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                    <div class="form-group">
+                  <label for="role_name">职位</label>
+                  <select id="role_name" name="role_name" class="form-control custom-select" style="width: 100%;">
+                    <option selected>--请选择职位--</option>
+                      {% for role in role_name %}
+                    <option>{{ role['role_name'] }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                  <div class="form-group">
+                    <label for="email">电子邮箱</label>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                  </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                  <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="issuper" id="issuper">
+                    <label for="issuper">管理员</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-sm-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="ismanager" id="ismanager">
+                    <label for="ismanager">经理</label>
+                      </div>
+                  </div>
+                        </div>
+                        </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                  <input type="submit" class="btn btn-primary" value="提交"></input>
+                </div>
+              </form>
+            </div>
+            <!-- /.card -->
+          </div>
+
+          {% for message in get_flashed_messages() %}
+          <div class="row-md-3" >
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        {% if message == 'registered successfully.' %}
+                      <div class="pace-flash-primary"><span class="float-right text-md-center text-success">{{ message }}</span></div>
+                        {% else %}
+                        <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+                       {% endif %}
+                        </div>
+                </div>
+          </div>
+          {% endfor %}
+
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- bs-custom-file-input -->
+<script src="../../static/AdminLTE-3.1.0/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<!-- Select2 -->
+<script src="../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
+<!-- Page specific script -->
+<script>
+$$("[type=checkbox]").click(function () {
+	alert($(this).is(":checked"))
+})
+
+
+$(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2()
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+    bsCustomFileInput.init();
+
+});
+
+</script>
+</body>
+</html>

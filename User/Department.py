@@ -20,9 +20,11 @@ def dept():
     elif g.user.is_manager():
         depts = db.session.query(Departments).filter(Departments.id == g.user.deptId)
     else:
-        depts=[]
+        depts = []
     for dept in depts:
-        manager = db.session.query(User.id, User.account, User.name).join(Departments, User.id == Departments.managerid).filter(and_(User.deptId==dept.id,User.ismanager==1)).first()
+        manager = db.session.query(User.id, User.account, User.name).join(Departments,
+                                                                          User.id == Departments.managerid).filter(
+            and_(User.deptId == dept.id, User.ismanager == 1)).first()
         ducount = User.query.filter_by(deptId=dept.id).count()
         users = User.query.filter_by(deptId=dept.id).all()
         # 存储各个部门人员的信息
@@ -31,7 +33,7 @@ def dept():
             userinfo = {
                 "account": user.account,
                 "name": user.name,
-                "role_name":user.role_name,
+                "role_name": user.role_name,
                 "email": user.email,
                 "phone": user.phone,
                 "ctime": user.ctime,
@@ -55,4 +57,4 @@ def dept():
         # 汇总一个部门的所有信息
         deptusers.append(deptmanager)
 
-    return render_template('Usermanage/Departments.html', deptuser=deptusers)
+    return render_template('Usermanage/Department/Departments.html', deptuser=deptusers)
