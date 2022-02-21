@@ -11,8 +11,8 @@ from useddb.models import db, User, UsersRoles, Departments
 from . import AllUsers
 
 
-# 用户管理
-@AllUsers.route('/AllUser')
+## 用户管理 ##
+@AllUsers.route('/AllUser', methods=['GET', 'POST'])
 @login_required
 def AllUser():
     # 连接查询
@@ -20,10 +20,11 @@ def AllUser():
                              User.ismanager, User.ctime, User.utime, User.role_name,
                              User.last_login, Departments.deptname).join(Departments,
                                                                          Departments.id == User.deptId)
+
     return render_template('Usermanage/AllUser/AllUser.html', users=users)
 
 
-# 新增用户
+## 新增用户 ##
 @AllUsers.route('/AddUser', methods=['GET', 'POST'])
 @login_required
 def AddUser():
@@ -79,3 +80,41 @@ def AddUser():
 
     return render_template('Usermanage/AllUser/AddUser.html', role_name=role_name, department=department)
 
+
+## 编辑用户信息 ##
+@AllUsers.route('/UserEdit/<account>/', methods=['GET', 'POST'])
+@login_required
+def UserEdit(account):
+    # 获取用户信息
+    user = User.query.filter_by(account=account).first()
+    # 确认更改
+    if request.method == 'POST':
+        name = request.form.get('name')
+        account = request.form.get('account')
+        passwd = request.form.get('password')
+        dingding = request.form.get('dingding')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+
+        m1 = hashlib.md5()
+        m1.update(passwd.encode("utf8"))
+        pwd_md5 = m1.hexdigest()
+
+        user.name = name
+        user.account = account
+        user.ding = dingding
+        user.phone = phone
+        user.email = email
+        user.pwd = pwd_md5
+
+        # 提交信息
+        db.session.add(user)
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash(e)
+            return redirect(url_for('AllUser.Alluser'))
+
+    return render_template('Usermanage/AllUser/UserEdit.html', user=user)

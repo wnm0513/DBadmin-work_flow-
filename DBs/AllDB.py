@@ -1,5 +1,5 @@
 from flask import (
-    g, render_template, request, flash
+    g, render_template, request, flash, redirect, url_for
 )
 from sqlalchemy import and_, func
 
@@ -49,6 +49,7 @@ def AddDB():
 
         flash(error)
 
+        # 修改部门信息
         if deptname:
             deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
             if deptId1:
@@ -65,3 +66,64 @@ def AddDB():
     department = Departments.query.all()
 
     return render_template('DBs/AllDB/AddDB.html', department=department)
+
+
+## 编辑用户信息 ##
+@AllDBs.route('/UserEdit/<dbname>/', methods=['GET', 'POST'])
+@login_required
+def EditDB(dbname):
+    # 获取用户信息
+    dbs = Dbs.query.filter_by(name=dbname).first()
+    # 确认更改
+    if request.method == 'POST':
+        name = request.form.get('name')
+        ip = request.form.get('ip')
+        port = request.form.get('port')
+        note = request.form.get('note')
+        deptname = request.form.get('deptId')
+
+        # 修改部门信息
+        if deptname:
+            deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
+            if deptId1:
+                deptId = deptId1.id
+                dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
+                dbid = dbid1.id
+                db_dept = DbsDept(deptid=deptId, dbid=dbid)
+                try:
+                    db.session.add(db_dept)
+                    db.session.commit()
+                except:
+                    error = 'adding error!!!'
+
+        dbs.name = name
+        dbs.ip = ip
+        dbs.port = port
+        dbs.note = note
+
+        # 提交信息
+        db.session.add(dbs)
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash(e)
+            return redirect(url_for('AllDB.AllDB'))
+
+    department = Departments.query.all()
+
+    return render_template('DBs/AllDB/EditDB.html', dbs=dbs, department=department)
+
+
+@AllDBs.route('/delete/<dbname>/', methods=['GET', 'POST'])
+@login_required
+def delete(dbname):
+    dbs = Dbs.query.filter_by(name=dbname).first()
+    dbdept = DbsDept.query.filter_by(dbid=dbs.id).first()
+    db.session.delete(dbs)
+    db.session.commit()
+    if dbdept:
+        db.session.delete(dbdept)
+
+    return redirect(url_for('AllDB.AllDB'))

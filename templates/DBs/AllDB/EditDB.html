@@ -24,12 +24,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>新增用户</h1>
+            <h1>编辑数据库</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{{ url_for('AllUser.AllUser') }}">返回</a></li>
-              <li class="breadcrumb-item active">新增用户</li>
+              <li class="breadcrumb-item"><a href="{{ url_for('AllDB.AllDB') }}">返回</a></li>
+              <li class="breadcrumb-item active">编辑库"{{ dbs.name }}"</li>
             </ol>
           </div>
         </div>
@@ -45,29 +45,29 @@
             <!-- general form elements -->
             <div class="card card-primary">
               <div class="card-header">
-                <h3 class="card-title">新增用户</h3>
+                <h3 class="card-title">编辑库"{{ dbs.name }}"</h3>
               </div>
               <!-- /.card-header -->
               <!-- form start -->
               <form method="post">
                 <div class="card-body">
                     <div class="form-group">
-                    <label for="name">姓名</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Enter name" required>
+                    <label for="name">库名</label>
+                    <input type="text" class="form-control" name="name" id="name" value="{{ request.form['name'] or dbs['name'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="account">账号</label>
-                    <input type="text" class="form-control" name="account" id="account" placeholder="Enter account" required>
+                    <label for="account">IP</label>
+                    <input type="text" class="form-control" name="ip" id="ip" value="{{ request.form['ip'] or dbs['ip'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="dingding">钉钉</label>
-                    <input type="text" class="form-control" name="dingding" id="dingding" placeholder="Enter dingding" required>
+                    <label for="dingding">端口</label>
+                    <input type="text" class="form-control" name="port" id="port" value="{{ request.form['port'] or dbs['port'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="phone">电话</label>
-                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone" required>
+                    <label for="phone">备注</label>
+                    <input type="text" class="form-control" name="note" id="note" value="{{ request.form['note'] or dbs['note'] }}" required>
                   </div>
-                    <div class="form-group">
+                  <div class="form-group">
                   <label for="deptId">部门</label>
                   <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;">
                     <option selected>--请选择部门--</option>
@@ -76,41 +76,6 @@
                       {% endfor %}
                   </select>
                 </div>
-                    <div class="form-group">
-                  <label for="role_name">职位</label>
-                  <select id="role_name" name="role_name" class="form-control custom-select" style="width: 100%;">
-                    <option selected>--请选择职位--</option>
-                      {% for role in role_name %}
-                    <option>{{ role['role_name'] }}</option>
-                      {% endfor %}
-                  </select>
-                </div>
-                  <div class="form-group">
-                    <label for="email">电子邮箱</label>
-                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
-                  </div>
-                    <div class="row">
-                    <div class="col-md-6">
-                  <div class="form-check">
-                      <div class="icheck-primary d-inline">
-                    <input type="checkbox" name="issuper" id="issuper">
-                    <label for="issuper">管理员</label>
-                      </div>
-                  </div>
-                        </div>
-                    <div class="col-sm-6">
-                 <div class="form-check">
-                      <div class="icheck-primary d-inline">
-                    <input type="checkbox" name="ismanager" id="ismanager">
-                    <label for="ismanager">经理</label>
-                      </div>
-                  </div>
-                        </div>
-                        </div>
                 </div>
                 <!-- /.card-body -->
 
