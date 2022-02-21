@@ -59,15 +59,24 @@ from Logins.login import Login
 app.register_blueprint(Login, url_prefix='/')
 
 ## 工单管理 ##
+# 我的工单
 from Workorder.MineWorkorder import MineWorkorders
 
 app.register_blueprint(MineWorkorders, url_prefix='/MineWorkorder')
+
+# 工单进度
+from Workorder.OderProcess import OrderProcesses
+app.register_blueprint(OrderProcesses, url_prefix='/OrderProcess')
+
+# 历史工单
+from Workorder.OrderHistory import OrderHistories
+app.register_blueprint(OrderHistories, url_prefix='/OrderHistory')
 
 ## 用户管理 ##
 # 所有用户
 from User.AllUser import AllUsers
 
-app.register_blueprint(AllUsers, url_prefix='/AllUsers')
+app.register_blueprint(AllUsers, url_prefix='/AllUser')
 
 # 部门管理
 from User.Department import Departments_view

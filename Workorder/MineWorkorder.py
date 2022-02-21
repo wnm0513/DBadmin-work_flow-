@@ -9,4 +9,4 @@ from . import MineWorkorders
 @MineWorkorders.route('/MineWorkorder')
 @login_required
 def MineWorkorder():
-    return render_template('workorder/MineWorkorder.html')
+    return render_template('workorder/MineWorkorder/MineWorkorder.html')
