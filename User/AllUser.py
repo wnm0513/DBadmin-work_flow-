@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Flask
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -118,3 +120,33 @@ def UserEdit(account):
             return redirect(url_for('AllUser.Alluser'))
 
     return render_template('Usermanage/AllUser/UserEdit.html', user=user)
+
+
+## 删除用户 ##
+@AllUsers.route('/delete/<account>/', methods=['GET', 'POST'])
+@login_required
+def delete(account):
+    user = User.query.filter_by(account=account).first()
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect(url_for('AllUser.AllUser'))
+
+
+## 改变用户状态 ##
+@AllUsers.route('/change_status/<account>/', methods=['GET', 'POST'])
+@login_required
+def change_status(account):
+    user = User.query.filter(User.account == account).first()
+    if user.status == 0:
+        user.status = 1
+
+    else:
+        user.status = 0
+
+    # 更新修改时间
+    user.utime = datetime.datetime.now()
+    db.session.add(user)
+    db.session.commit()
+
+    return redirect(url_for('AllUser.AllUser'))

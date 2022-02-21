@@ -88,12 +88,13 @@
                         </td>
                         <td>
                             {% if user['status']  == 1 %}
-                            <a><span class="btn btn-success">是</span></a>
+                            <a href="{{ url_for('AllUser.change_status', account=user['account'])}}"><span class="btn btn-success">是</span></a>
                             {% else %}
-                           <a><span class="btn btn-default">否</span></a>
+                           <a href="{{ url_for('AllUser.change_status', account=user['account'])}}"><span class="btn btn-default">否</span></a>
                             {% endif %}
                         </td>
-                        <td><a class="btn btn-info" href="{{ url_for('AllUser.UserEdit', account=user['account']) }}">编辑</a> <a class="btn btn-danger">删除</a></td>
+                        <td><a class="btn btn-info" href="{{ url_for('AllUser.UserEdit', account=user['account']) }}">编辑</a>
+                            <a class="btn btn-danger" onclick="return confirm('Are you sure delete this user?');" href="{{ url_for('AllUser.delete', account=user['account']) }}">删除</a></td>
                     </tr>
                     {% endfor %}
                     </tbody>

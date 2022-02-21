@@ -18,7 +18,10 @@ def login():
         user = User.query.filter(User.account == account).first()
 
         if user:
-            if user.passwd == pwd_md5:
+            if user.status == 0:
+                error = '账号未被启用，请联系管理员进行激活'
+
+            elif user.passwd == pwd_md5:
                 session.clear()
                 session['user_id'] = user.id
                 return redirect(url_for('index'))
@@ -38,4 +41,3 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login.login'))
-
