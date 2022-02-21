@@ -1,5 +1,5 @@
 from flask import (
-    g, render_template
+    g, render_template, redirect, url_for
 )
 from sqlalchemy import and_
 
@@ -23,9 +23,10 @@ def DeptDB():
                                                                           User.id == Departments.managerid).filter(
             and_(User.deptId == dept.id, User.ismanager == 1)).first()
         ducount = DbsDept.query.filter_by(deptid=dept.id).count()
-        dbids = db.session.query(DbsDept, Departments.deptname, Dbs.name, Dbs.ip, Dbs.port, Dbs.note).filter_by(deptid=dept.id)\
-            .join(Departments, Departments.id == DbsDept.deptid)\
-            .join(Dbs, Dbs.id == DbsDept.dbid).all()
+        dbids = db.session.query(Dbs, Dbs.name, Dbs.ip, Dbs.port, Dbs.note, DbsDept.deptid) \
+            .join(DbsDept, DbsDept.dbid == Dbs.id) \
+            .filter(DbsDept.deptid == dept.id) \
+            .all()
         # 存储各个部门数据库的信息
         dbsinfo = []
         for dbs1 in dbids:
@@ -36,21 +37,34 @@ def DeptDB():
                 "note": dbs1.note,
             }
             dbsinfo.append(dbinfo)
-            if manager is None:
-                mid = 0
-                mgrname = "暂无数据"
-            else:
-                mid = manager.id
-                mgrname = manager.name
-            deptmanager = {
-                "id": dept.id,
-                "name": dept.deptname,
-                "mid": mid,
-                "mgrname": mgrname,
-                "deptdbcount": ducount,
-                "dbsinfo": dbsinfo
-            }
-            # 汇总一个部门的所有信息
-            deptdbs.append(deptmanager)
+        if manager is None:
+            mid = 0
+            mgrname = "暂无数据"
+        else:
+            mid = manager.id
+            mgrname = manager.name
+        deptmanager = {
+            "id": dept.id,
+            "name": dept.deptname,
+            "mid": mid,
+            "mgrname": mgrname,
+            "deptdbcount": ducount,
+            "dbsinfo": dbsinfo
+        }
+        # 汇总一个部门的所有信息
+        deptdbs.append(deptmanager)
 
     return render_template('DBs/DeptDB/DeptDB.html', deptdbs=deptdbs)
+
+
+# 从部门中移除
+@DeptDBs.route('/delete/<dbname>/', methods=['GET', 'POST'])
+@login_required
+def delete(dbname):
+    dbs = Dbs.query.filter_by(name=dbname).first()
+    dbdept = DbsDept.query.filter_by(dbid=dbs.id).first()
+    if dbdept:
+        db.session.delete(dbdept)
+        db.session.commit()
+
+    return redirect(url_for('DeptDB.DeptDB'))

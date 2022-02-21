@@ -22,9 +22,8 @@ class User(db.Model):
     utime = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='修改时间')
     last_login = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='最近登录')
     profile = db.Column(db.String(64), nullable=False, default='#', )  # comment='头像')
-    role_name = db.Column(db.String(32), nullable=False, unique=True,
-                          default='', )  # comment='角色名')
-
+    role_name = db.Column(db.String(32), nullable=False, unique=True, default='', )  # comment='角色名')
+    status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='状态0异常，1正常')
 
     def __repr__(self):
         return '<User %r>' % self.account
@@ -90,37 +89,24 @@ class UsersRoles(db.Model):
 
 
 # 权限表
-class PrigroupUsersDbs(db.Model):
+class PrivilegesUsersDbs(db.Model):
     '''工作表'''
-    __tablename__ = 'prigroup_users_dbs'
+    __tablename__ = 'privileges_users_dbs'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    prigroupid = db.Column(db.Integer, nullable=False, default=0, )  # comment='权限id')
+    priid = db.Column(db.Integer, nullable=False, default=0, )  # comment='权限id')
     uid = db.Column(db.Integer, nullable=False, default=0, )  # comment='用户id')
     dbid = db.Column(db.Integer, nullable=False, default=0, )  # comment='DBid')
     note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
 
     def __repr__(self):
-        return '<PrigroupUsersDbs %r>' % self.id
-
-
-class PrivilegeGroup(db.Model):
-    '''工作表'''
-    __tablename__ = 'privilege_group'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    groupid = db.Column(db.Integer, nullable=False, default=0, )  # comment='权限组id')
-    priid = db.Column(db.Integer, nullable=False, default=0, )  # comment='权限id')
-    name = db.Column(db.String(50), nullable=False, default='', )  # comment='权限组名称')
-    note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
-
-    def __repr__(self):
-        return '<PrivilegeGroup %r>' % self.id
+        return '<PrivilegesUsersDbs %r>' % self.id
 
 
 class Privilege(db.Model):
     '''工作表'''
     __tablename__ = 'privilege'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable=False, default='', )  # comment='权限组名称')
+    name = db.Column(db.String(50), nullable=False, default='', )  # comment='权限名称')
     note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
 
     def __repr__(self):

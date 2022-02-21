@@ -18,8 +18,8 @@ def AllUser():
     # 连接查询
     users = db.session.query(User.account, User.name, User.email, User.phone, User.issuper,
                              User.ismanager, User.ctime, User.utime, User.role_name,
-                             User.last_login, Departments.deptname).join(Departments,
-                                                                         Departments.id == User.deptId)
+                             User.last_login, User.status, Departments.deptname).join(Departments,
+                                                                                      Departments.id == User.deptId)
 
     return render_template('Usermanage/AllUser/AllUser.html', users=users)
 

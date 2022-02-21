@@ -82,7 +82,7 @@
                         <td>{{ db['port'] }}</td>
                         <td>{{ db['note'] }}</td>
                         <td>
-                        <a class="btn btn-info">编辑</a> <a class="btn btn-danger">删除</a>
+                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('DeptDB.delete', dbname=db['name']) }}">从部门中移除</a>
                         </td>
                     </tr>
                     {% endfor %}

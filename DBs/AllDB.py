@@ -121,9 +121,9 @@ def EditDB(dbname):
 def delete(dbname):
     dbs = Dbs.query.filter_by(name=dbname).first()
     dbdept = DbsDept.query.filter_by(dbid=dbs.id).first()
-    db.session.delete(dbs)
-    db.session.commit()
     if dbdept:
         db.session.delete(dbdept)
+    db.session.delete(dbs)
+    db.session.commit()
 
     return redirect(url_for('AllDB.AllDB'))
