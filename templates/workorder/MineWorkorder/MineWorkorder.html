@@ -6,9 +6,9 @@
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
 
 
 </head>
@@ -54,20 +54,32 @@
                 <!-- /.form-group -->
                 <div class="form-group">
                   <label for="status">上线类型</label>
-                  <select id="status" class="form-control custom-select" style="width: 100%;">
+                  <select id="status" name="type_id" class="form-control custom-select" style="width: 100%;">
                     <option selected>--请选择类型--</option>
-                    <option>正常迭代</option>
-                    <option>正常迭代（涉及DDL）</option>
-                    <option>修改线上数据</option>
-                    <option>修改线上数据（涉及DDL）</option>
+                    <option value="1">正常迭代</option>
+                    <option value="2">正常迭代（涉及DDL）</option>
+                    <option value="3">修改线上数据</option>
+                    <option value="4">修改线上数据（涉及DDL）</option>
                   </select>
                 </div>
                 <!-- /.form-group -->
 
+           {% for message in get_flashed_messages() %}
+            <div class="row-md-3" >
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        {% if message %}
+                        <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+                       {% endif %}
+                        </div>
+                </div>
+            </div>
+          {% endfor %}
+
                       <!-- textarea -->
                       <div class="form-group">
-                        <label>填写SQL语句</label>
-                        <textarea class="form-control" rows="3" placeholder="Enter ..."></textarea>
+                        <label for="sqltext">填写SQL语句</label>
+                        <textarea class="form-control" id="sqltext" name="sqltext" rows="3" placeholder="Enter SQL..."></textarea>
                       </div>
                 </div>
                 <!-- /.card-body -->
@@ -80,13 +92,13 @@
             <!-- /.card -->
 
 <!-- jQuery -->
-<script src="../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
-<script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
-<script src="../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
 
 
 </body>

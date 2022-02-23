@@ -94,5 +94,10 @@ from DBs.AllDB import AllDBs
 
 app.register_blueprint(AllDBs, url_prefix='/AllDBs')
 
+# 用户权限管理
+from DBs.PriDB import PriDBs
+
+app.register_blueprint(PriDBs, url_prefix='/PriDB')
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port="2022")
+    app.run(host="0.0.0.0", port=2022)

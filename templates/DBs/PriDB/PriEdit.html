@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | Enhanced Search Form</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/select2/css/select2.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+  <!-- iCheck for checkboxes and radio inputs -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+
+</head>
+<body class="hold-transition sidebar-mini dark-mode">
+<div class="wrapper">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>编辑权限</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="{{ url_for('PriDB.PriDB') }}">返回</a></li>
+              <li class="breadcrumb-item active">编辑权限</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <!-- left column -->
+          <div class="col-sm-6">
+            <!-- general form elements -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">编辑用户:"{{ user.name }}"的权限</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form method="post">
+                <div class="card-body">
+                <div class="form-group">
+                <form id="dbnameform" method="post">
+                  <label for="dbname">数据库</label>
+                  <select onchange="submitForm();" id="dbname" name="dbname" class="select2" style="width: 100%;">
+                    <option selected>--请选择数据库--</option>
+                      {% for db in dbs %}
+                    <option>{{ db['name'] }}</option>
+                      {% endfor %}
+                  </select>
+                </form>
+                </div>
+                <label for="PriId">权限</label>
+                <div class="row">
+                    <div class="col-md-6">
+                  <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="SELECT" id="SELECT">
+                    <label for="SELECT">SELECT</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="INSERT" id="INSERT">
+                    <label for="INSERT">INSERT</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="UPDATE" id="UPDATE">
+                    <label for="UPDATE">UPDATE</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="DELETE" id="DELETE">
+                    <label for="DELETE">DELETE</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="CREATE" id="CREATE">
+                    <label for="CREATE">CREATE</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="DROP" id="DROP">
+                    <label for="DROP">DROP</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="INDEX" id="INDEX">
+                    <label for="INDEX">INDEX</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="EXECUTE" id="EXECUTE">
+                    <label for="EXECUTE">EXECUTE</label>
+                      </div>
+                  </div>
+                        </div>
+                    <div class="col-md-6">
+                 <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="TRUNCATE" id="TRUNCATE">
+                    <label for="TRUNCATE">TRUNCATE</label>
+                      </div>
+                  </div>
+                        </div>
+                        </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                    <input type="submit" class="btn btn-primary" value="提交"/>
+                </div>
+              </form>
+            </div>
+            <!-- /.card -->
+          </div>
+
+          {% for message in get_flashed_messages() %}
+          <div class="row-md-3" >
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        {% if message == 'Add DB successfully.' %}
+                      <div class="pace-flash-primary"><span class="float-right text-md-center text-success">{{ message }}</span></div>
+                        {% else %}
+                        <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+                       {% endif %}
+                        </div>
+                </div>
+          </div>
+          {% endfor %}
+
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Select2 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script>
+    $(function () {
+      $('.select2').select2()
+    });
+
+    $$("[type=checkbox]").click(function () {
+	alert($(this).is(":checked"))
+    })
+
+    function submitForm(){
+        var form = document.getElementById("dbnameform");
+        form.submit();
+    }
+</script>
+</body>
+</html>
