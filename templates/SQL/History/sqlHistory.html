@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | Enhanced Search Form</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/select2/css/select2.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition sidebar-mini dark-mode">
+<div class="wrapper">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <h2 class="text-center display-4">历史SQL</h2>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">历史执行结果</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form method="post">
+                <div class="card-body">
+                   <table id="example1" class="table m-0">
+                  <thead>
+                  <tr>
+                    <th>库名</th>
+                    <th>IP</th>
+                    <th>执行的SQL</th>
+                    <th>执行时间</th>
+                    <th>执行者</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for db in dbs %}
+                    <tr>
+                        <td>{{ db['name'] }}</td>
+                        <td>{{ db['ip'] }}</td>
+                        <td>{{ db['port'] }}</td>
+
+                        {% if not db[5] %}
+                        <td>尚未分配</td>
+                        {% else %}
+                        <td>{{ db[5] }}</td>
+                        {% endif %}
+
+                        {% if not db[6] %}
+                        <td>尚未分配</td>
+                        {% else %}
+                        <td>{{ db[6] }}</td>
+                        {% endif %}
+
+                        <td>{{ db['note'] }}</td>
+                        <td>
+                        <a class="btn btn-info" href="{{ url_for('AllDB.EditDB', dbname=db['name']) }}">编辑</a>
+                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('AllDB.delete', dbname=db['name']) }}">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <!-- /.card-body -->
+
+              </form>
+            </div>
+        </div>
+    </section>
+  </div>
+
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Select2 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script>
+    $(function () {
+      $('.select2').select2()
+    });
+</script>
+</body>
+</html>

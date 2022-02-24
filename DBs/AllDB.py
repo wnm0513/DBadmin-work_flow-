@@ -4,7 +4,7 @@ from flask import (
 from sqlalchemy import and_, func
 
 from app import login_required
-from useddb.models import db, User, Departments, Dbs, DbsDept
+from useddb.models import db, User, Departments, Dbs, DbsDept, DbsUser
 from . import AllDBs
 
 
@@ -17,9 +17,13 @@ def AllDB():
         Dbs.ip,
         Dbs.port,
         Dbs.note,
-        func.group_concat(Departments.deptname)
+        func.group_concat(Departments.deptname),
+        func.group_concat(User.name)
     ).outerjoin(DbsDept, DbsDept.dbid == Dbs.id) \
-        .outerjoin(Departments, Departments.id == DbsDept.deptid).group_by(Dbs.id).order_by(Dbs.name.desc())
+        .outerjoin(Departments, Departments.id == DbsDept.deptid)\
+        .outerjoin(DbsUser, DbsUser.dbid == Dbs.id)\
+        .outerjoin(User, User.id == DbsUser.uid)\
+        .group_by(Dbs.id).order_by(Dbs.name.desc())
 
     return render_template('DBs/AllDB/AllDB.html', dbs=dbs)
 
@@ -34,6 +38,7 @@ def AddDB():
         port = request.form.get('port')
         note = request.form.get('note')
         deptname = request.form.get('deptId')
+        username = request.form.get('username')
         dbs = Dbs(name=name, ip=ip, port=port, note=note)
         db1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
         if db1:
@@ -49,6 +54,55 @@ def AddDB():
 
         flash(error)
 
+        # 如果分配了部门
+        if deptname:
+            deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
+            if deptId1:
+                deptId = deptId1.id
+                dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
+                dbid = dbid1.id
+                db_dept = DbsDept(deptid=deptId, dbid=dbid)
+                try:
+                    db.session.add(db_dept)
+                    db.session.commit()
+                except:
+                    error = 'adding error!!!'
+
+        # 如果分配了数据库管理者
+        if username:
+            user1 = User.query.filter(User.name == username).first()
+            if user1:
+                userId = user1.id
+                dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
+                dbid = dbid1.id
+                db_user = DbsUser(uid=userId, dbid=dbid)
+                try:
+                    db.session.add(db_user)
+                    db.session.commit()
+                except:
+                    error = 'adding error!!!'
+
+    department = Departments.query.all()
+    users = User.query.all()
+
+    return render_template('DBs/AllDB/AddDB.html', department=department, users=users)
+
+
+## 编辑数据库信息 ##
+@AllDBs.route('/UserEdit/<dbname>/', methods=['GET', 'POST'])
+@login_required
+def EditDB(dbname):
+    # 获取用户信息
+    dbs = Dbs.query.filter_by(name=dbname).first()
+    # 确认更改
+    if request.method == 'POST':
+        name = request.form.get('name')
+        ip = request.form.get('ip')
+        port = request.form.get('port')
+        note = request.form.get('note')
+        deptname = request.form.get('deptId')
+        username = request.form.get('username')
+
         # 修改部门信息
         if deptname:
             deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
@@ -63,35 +117,16 @@ def AddDB():
                 except:
                     error = 'adding error!!!'
 
-    department = Departments.query.all()
-
-    return render_template('DBs/AllDB/AddDB.html', department=department)
-
-
-## 编辑用户信息 ##
-@AllDBs.route('/UserEdit/<dbname>/', methods=['GET', 'POST'])
-@login_required
-def EditDB(dbname):
-    # 获取用户信息
-    dbs = Dbs.query.filter_by(name=dbname).first()
-    # 确认更改
-    if request.method == 'POST':
-        name = request.form.get('name')
-        ip = request.form.get('ip')
-        port = request.form.get('port')
-        note = request.form.get('note')
-        deptname = request.form.get('deptId')
-
-        # 修改部门信息
-        if deptname:
-            deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
-            if deptId1:
-                deptId = deptId1.id
+        # 修改数据库管理者
+        if username:
+            user1 = User.query.filter(User.name == username).first()
+            if user1:
+                userId = user1.id
                 dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
                 dbid = dbid1.id
-                db_dept = DbsDept(deptid=deptId, dbid=dbid)
+                db_user = DbsUser(uid=userId, dbid=dbid)
                 try:
-                    db.session.add(db_dept)
+                    db.session.add(db_user)
                     db.session.commit()
                 except:
                     error = 'adding error!!!'
@@ -112,8 +147,9 @@ def EditDB(dbname):
             return redirect(url_for('AllDB.AllDB'))
 
     department = Departments.query.all()
+    users = User.query.all()
 
-    return render_template('DBs/AllDB/EditDB.html', dbs=dbs, department=department)
+    return render_template('DBs/AllDB/EditDB.html', dbs=dbs, department=department, users=users)
 
 
 @AllDBs.route('/delete/<dbname>/', methods=['GET', 'POST'])
@@ -121,8 +157,11 @@ def EditDB(dbname):
 def delete(dbname):
     dbs = Dbs.query.filter_by(name=dbname).first()
     dbdept = DbsDept.query.filter_by(dbid=dbs.id).first()
+    dbuser = DbsUser.query.filter_by(dbid=dbs.id).first()
     if dbdept:
         db.session.delete(dbdept)
+    if dbuser:
+        db.session.delete(dbuser)
     db.session.delete(dbs)
     db.session.commit()
 

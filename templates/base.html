@@ -202,12 +202,6 @@
                 </a>
               </li>
                     {% endif %}
-              <li class="nav-item">
-                <a href="{{ url_for('PriDB.PriDB') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>用户权限管理</p>
-                </a>
-              </li>
             </ul>
           </li>
 
@@ -223,15 +217,15 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="pages/forms/advanced.html" class="nav-link">
+                <a href="{{ url_for('sqlExecute.sqlExecute') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>数据查询</p>
+                  <p>SQL执行</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="pages/forms/editors.html" class="nav-link">
+                <a href="{{ url_for('sqlHistory.sqlHistory') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Slowlog查询</p>
+                  <p>历史SQL查询</p>
                 </a>
               </li>
               <li class="nav-item">

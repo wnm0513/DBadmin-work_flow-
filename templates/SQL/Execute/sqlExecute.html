@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | Enhanced Search Form</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/select2/css/select2.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition sidebar-mini dark-mode">
+<div class="wrapper">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <h2 class="text-center display-4">SQL执行</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">SQL语句执行</h2>
+                     </div>
+             <div class="card-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-10 offset-md-1">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>IP:</label>
+                                    <select class="select2" style="width: 100%;">
+                                        <option>Text only</option>
+                                        <option>Images</option>
+                                        <option>Video</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label>数据库:</label>
+                                    <select class="select2" style="width: 100%;">
+                                        <option selected>ASC</option>
+                                        <option>DESC</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                                <textarea type="search" class="form-control form-control-lg" placeholder="请输入SQL"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+             </div>
+
+                <div class="card-footer">
+                     <input type="submit" class="btn btn-primary" value="确定执行">
+                </div>
+
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">执行结果</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form method="post">
+                <div class="card-body">
+                   <table id="example1" class="table m-0">
+                  <thead>
+                  <tr>
+                    <th>库名</th>
+                    <th>IP</th>
+                    <th>执行的SQL</th>
+                    <th>执行时间</th>
+                    <th>执行者</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for db in dbs %}
+                    <tr>
+                        <td>{{ db['name'] }}</td>
+                        <td>{{ db['ip'] }}</td>
+                        <td>{{ db['port'] }}</td>
+
+                        {% if not db[5] %}
+                        <td>尚未分配</td>
+                        {% else %}
+                        <td>{{ db[5] }}</td>
+                        {% endif %}
+
+                        {% if not db[6] %}
+                        <td>尚未分配</td>
+                        {% else %}
+                        <td>{{ db[6] }}</td>
+                        {% endif %}
+
+                        <td>{{ db['note'] }}</td>
+                        <td>
+                        <a class="btn btn-info" href="{{ url_for('AllDB.EditDB', dbname=db['name']) }}">编辑</a>
+                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('AllDB.delete', dbname=db['name']) }}">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <!-- /.card-body -->
+
+              </form>
+            </div>
+        </div>
+    </section>
+  </div>
+
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Select2 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script>
+    $(function () {
+      $('.select2').select2()
+    });
+</script>
+</body>
+</html>

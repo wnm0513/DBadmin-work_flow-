@@ -1,8 +1,10 @@
+import datetime
+
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 import hashlib
-from useddb.models import User
+from useddb.models import User, db
 
 from . import Login
 
@@ -22,6 +24,11 @@ def login():
                 error = '账号未被启用，请联系管理员进行激活'
 
             elif user.passwd == pwd_md5:
+                # 记录登录时间
+                user.last_login = datetime.datetime.now()
+                db.session.add(user)
+                db.session.commit()
+                # 取出用户id作为全局变量
                 session.clear()
                 session['user_id'] = user.id
                 return redirect(url_for('index'))

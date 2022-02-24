@@ -9,9 +9,11 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/select2/css/select2.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
-   <!-- iCheck for checkboxes and radio inputs -->
+  <!-- iCheck for checkboxes and radio inputs -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
 </head>
 <body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -76,6 +78,15 @@
                       {% endfor %}
                   </select>
                 </div>
+                <div class="form-group">
+                  <label for="username">数据库管理者</label>
+                  <select id="username" name="username" class="select2" style="width: 100%;">
+                    <option selected>--请选择人员--</option>
+                      {% for user in users %}
+                    <option>{{ user['name'] }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
                 </div>
                 <!-- /.card-body -->
 
@@ -116,32 +127,20 @@
 <script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- bs-custom-file-input -->
-<script src="../../../static/AdminLTE-3.1.0/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- Select2 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
-<!-- Select2 -->
-<script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
-<!-- Page specific script -->
 <script>
+    $(function () {
+      $('.select2').select2()
+    });
+
 $$("[type=checkbox]").click(function () {
 	alert($(this).is(":checked"))
 })
-
-
-$(function () {
-    //Initialize Select2 Elements
-    $('.select2').select2()
-
-    //Initialize Select2 Elements
-    $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    })
-    bsCustomFileInput.init();
-
-});
 
 </script>
 </body>

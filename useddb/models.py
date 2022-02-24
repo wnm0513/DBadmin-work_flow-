@@ -88,31 +88,6 @@ class UsersRoles(db.Model):
         return '<UsersRoles %r>' % self.id
 
 
-# 权限表
-class PrivilegesUsersDbs(db.Model):
-    '''工作表'''
-    __tablename__ = 'privileges_users_dbs'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    priid = db.Column(db.Integer, nullable=False, default=0, )  # comment='权限id')
-    uid = db.Column(db.Integer, nullable=False, default=0, )  # comment='用户id')
-    dbid = db.Column(db.Integer, nullable=False, default=0, )  # comment='DBid')
-    note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
-
-    def __repr__(self):
-        return '<PrivilegesUsersDbs %r>' % self.id
-
-
-class Privilege(db.Model):
-    '''工作表'''
-    __tablename__ = 'privilege'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable=False, default='', )  # comment='权限名称')
-    note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
-
-    def __repr__(self):
-        return '<Privilege %r>' % self.id
-
-
 # 数据库表
 class Dbs(db.Model):
     '''工作表'''
@@ -133,6 +108,18 @@ class DbsDept(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     dbid = db.Column(db.Integer, nullable=False, default=0, )  # comment='DBid')
     deptid = db.Column(db.Integer, nullable=False, default=0, )  # comment='部门id')
+    note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
+
+    def __repr__(self):
+        return '<DbsDept %r>' % self.id
+
+
+class DbsUser(db.Model):
+    '''工作表'''
+    __tablename__ = 'dbs_user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    dbid = db.Column(db.Integer, nullable=False, default=0, )  # comment='DBid')
+    uid = db.Column(db.Integer, nullable=False, default=0, )  # comment='用户id')
     note = db.Column(db.String(50), nullable=False, default='', )  # comment='备注')
 
     def __repr__(self):

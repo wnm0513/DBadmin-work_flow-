@@ -66,10 +66,12 @@ app.register_blueprint(MineWorkorders, url_prefix='/MineWorkorder')
 
 # 工单进度
 from Workorder.OderProcess import OrderProcesses
+
 app.register_blueprint(OrderProcesses, url_prefix='/OrderProcess')
 
 # 历史工单
 from Workorder.OrderHistory import OrderHistories
+
 app.register_blueprint(OrderHistories, url_prefix='/OrderHistory')
 
 ## 用户管理 ##
@@ -94,10 +96,17 @@ from DBs.AllDB import AllDBs
 
 app.register_blueprint(AllDBs, url_prefix='/AllDBs')
 
-# 用户权限管理
-from DBs.PriDB import PriDBs
+## SQL执行 ##
+# SQL执行
+from SQL.sql_execute import sqlExecutes
 
-app.register_blueprint(PriDBs, url_prefix='/PriDB')
+app.register_blueprint(sqlExecutes, url_prefix='/sqlExecute')
+
+# 历史SQL
+from SQL.sql_history import sqlHistories
+
+app.register_blueprint(sqlHistories, url_prefix='/sqlHistory')
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=2022)
