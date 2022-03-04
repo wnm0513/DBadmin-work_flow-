@@ -16,11 +16,48 @@ from useddb.models import db, Dbs, InceptionRecords
 from . import MineWorkorders
 
 
+def goinceptioncheck(sqltext):
+    # 接下来是连接goinception来进行SQL语法判定
+    conn_goinception = pymysql.connect(
+        host=Config.INCEPTION_HOST,
+        port=int(Config.INCEPTION_PORT),
+        user=Config.INCEPTION_USER,
+        password=Config.INCEPTION_PASSWORD
+    )
+
+    # 初始化inception数据库的游标
+    cur = conn_goinception.cursor()
+    # inception参数
+    prefix_format_check = ''
+    # 结束语法
+    suffix_format = "\ninception_magic_commit;"
+
+    # 开始，获取连接信息
+    prefix_format_check = "/*--user={};--password={};--host={};--port={};--enable-check;*/ " \
+                              .format(Config.MYSQLUSER, Config.MYSQLPASSWORD,
+                                      Config.IP, int(Config.PORT)) + '\n' \
+                          + "inception_magic_start;\n"
+
+    # 拼接语法
+    nowsql = sqltext.replace('\r\n', ' ').replace('\n', ' ')
+    checksql = prefix_format_check + nowsql + suffix_format
+    cur.execute(checksql)
+
+    # 获取check结果
+    sqlresults = cur.fetchall()
+
+    return sqlresults
+
+
 @MineWorkorders.route('/MineWorkorder', methods=['GET', 'POST'])
 @login_required
 def MineWorkorder():
-    # 定义路径
+    # 定义全局变量
+    global filename
     g.path = current_app.config['INCEPTION_PATH']
+
+    # 定义要传给下个视图的列表
+    newrecordsinfo = []
     # 对输入的SQL进行是否符合SQL标准的判断
     if request.method == 'POST':
         sqltext = request.form.get('sqltext')
@@ -115,13 +152,14 @@ def MineWorkorder():
             try:
                 os.mkdir('{path}/{current_day}'.format(path=g.path, current_day=current_day))
             except Exception as e:
+                print(e)
                 error = str(e)
                 flash(error)
         try:
             uid = g.user.id
             file_path = '{path}/{current_day}/$_{uid}_{time}_$.sql'.format(path=g.path, uid=uid, time=current_time,
-                                                                            current_day=current_day)
-            wfile = open('file_path', 'a+')
+                                                                           current_day=current_day)
+            wfile = open('{file_path}'.format(file_path=file_path), 'a+')
             # 将用户输入循环写入文件保存，以便后续分析和使用
             for sql in sqllist:
                 if sql.strip() != '':
@@ -136,54 +174,99 @@ def MineWorkorder():
             # 取文件名
             filename = os.path.basename(file_path)
         except Exception as e:
+            print(e)
             error = str(e)
             flash(error)
 
-        # 接下来是连接goinception来进行SQL语法判定
-        conn_goinception = pymysql.connect(
-            host=Config.INCEPTION_HOST,
-            port=int(Config.INCEPTION_PORT),
-            user=Config.INCEPTION_USER,
-            password=Config.INCEPTION_PASSWORD
-        )
-
-        display_result_dict = {}
-        # 初始化inception数据库的游标
-        cur = conn_goinception.cursor()
-        # inception参数
-        prefix_format_check = ''
-        # 结束语法
-        suffix_format = "\ninception_magic_commit;"
-
-        display_result = []
-        successfulstatus = 'no'
-        successfulnum = 0
-
-        # 开始，获取连接信息
-        prefix_format_check = "/*--user={};--password={};--host={};--port={};--enable-check;*/ " \
-                                  .format(Config.MYSQLUSER, Config.MYSQLPASSWORD,
-                                          Config.IP, int(Config.PORT)) + '\n' \
-                              + "inception_magic_start;\n"
-
-        # 拼接语法
-        nowsql = sqltext.replace('\r\n', ' ').replace('\n', ' ')
-        checksql = prefix_format_check + nowsql + suffix_format
-        cur.execute(checksql)
+        # 调用goinceptioncheck获取check结果
+        sqlresults = goinceptioncheck(sqltext)
 
         # 计算有多少句SQL
         count = sqltext.count(';')
 
-        # 获取check结果
-        sqlresults = cur.fetchall()
-        print(sqlresults)
         for sqlresult in sqlresults:
+
             # 获取本次检查成功的SQL语句数量
             if sqlresult[2] == 0:
-                successfulnum = successfulnum + 1
-        if count == successfulnum:
-            successfulstatus = 'yes'
+                success_status = 1
+            else:
+                success_status = 0
 
-        print(count)
+            execute_status = 0
+            goinception_record = InceptionRecords(uid=g.user.id, sqltext=sqlresult[5], filename=filename, sqlnums=count,
+                                                  success_status=success_status,
+                                                  applydate=current_day, applytime=datetime.datetime.now(),
+                                                  lastupdatetime=datetime.datetime.now(),
+                                                  execute_status=execute_status)
+
+            try:
+                db.session.add(goinception_record)
+                db.session.commit()
+            except Exception as e:
+                error = str(e)
+                flash(error)
+
+            newrecordinfo = {
+                'type_id': type_id,
+                'current_time': current_time,
+                'current_day': current_day
+            }
+            newrecordsinfo.append(newrecordinfo)
+
+    return render_template('workorder/MineWorkorder/MineWorkorder.html', newrecordsinfo=newrecordsinfo )
 
 
-    return render_template('workorder/MineWorkorder/MineWorkorder.html')
+@MineWorkorders.route('/OrderCheck/<newrecordsinfo>', methods=['GET', 'POST'])
+@login_required
+def OrderCheck(newrecordsinfo):
+    # 接收从前一个视图传来的数据
+    type_id = newrecordsinfo['type_id']
+    current_day = newrecordsinfo['current_day']
+    current_time = newrecordsinfo['current_time']
+
+    # 首次执行创建的sql文件
+    if not os.path.exists('{path}/{day}/{time}.json'.format(path=g.path, day=current_day, time=current_time)):
+        # 判断有没有当前的文件夹，如果没有提前创建
+        if not os.path.exists(g.path):
+            os.mkdir(g.path)
+        if not os.path.exists('{path}/{day}/'.format(path=g.path, day=current_day)):
+            os.mkdir('{path}/{day}/'.format(path=g.path, day=current_day))
+        # 查找当天有没有相同时间的sql文件
+        filelist = os.listdir('{path}/{day}/'.format(path=g.path, day=current_day))
+        # 存储用户操作写入的文件名列表
+        filename_list = []
+        for filename in filelist:
+            if re.search('\_{uid}\_{time}'.format(uid=g.user.id, time=current_time), filename):
+                filename_list.append(filename)
+        # 读取这些文件
+        filename_list.sort()
+        for filename in filename_list:
+            try:
+                # 打开并读取文件
+                filecontent = open('{path}/{day}/{filename}'.format(path=g.path, day=current_day, filename=filename),
+                                   'r')
+                allsqls = filecontent.readlines()
+                filecontent.close()
+            except Exception as e:
+                traceback.print_exc(e)
+
+    # 定义checksql信息列表
+    checksqlsinfo = []
+
+    sqlresults = goinceptioncheck(sqltext)
+
+    for sqlresult in sqlresults:
+        # 整合check结果
+        checksqlinfo = {
+            'stage': sqlresult[1],
+            'error_level': sqlresult[2],
+            'stage_status': sqlresult[3],
+            'error_message': sqlresult[4],
+            'sql': sqlresult[5],
+            'affected_rows': sqlresult[6],
+            'execute_time': sqlresult[9],
+            'backup_time': sqlresult[11]
+        }
+        checksqlsinfo.append(checksqlinfo)
+
+    return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo)

@@ -162,7 +162,7 @@ class InceptionRecords(db.Model):
     sqltext = db.Column(db.Text, )  # comment='操作文本')
     filename = db.Column(db.String(128), nullable=False, default='', )  # comment='json文件名')
     sqlnums = db.Column(db.Integer, nullable=False, default=0, )  # comment='SQL语句数量')
-    successnums = db.Column(db.Integer, nullable=False, default=0, )  # comment='首次成功审核通过的语句数量')
+    success_status = db.Column(db.Integer, nullable=False, default=0, )  # comment='是否成功通过审核')
     execute_status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='通过后是否执行，0未执行，1已执行，2已回滚' ,9执行中)
 
     def __repr__(self):
