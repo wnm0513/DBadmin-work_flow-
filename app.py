@@ -107,6 +107,5 @@ from SQL.sql_history import sqlHistories
 
 app.register_blueprint(sqlHistories, url_prefix='/sqlHistory')
 
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=2022)

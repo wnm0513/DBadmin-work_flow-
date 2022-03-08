@@ -1,5 +1,5 @@
 from flask import (
-    g, render_template
+    g, render_template, flash, request, redirect, url_for
 )
 from flask import (
     g, render_template
@@ -13,7 +13,7 @@ from . import Departments_view
 
 @Departments_view.route('/Department')
 @login_required
-def dept():
+def Dept():
     deptusers = []
     if g.user.is_super():
         depts = Departments.query.all()
@@ -58,3 +58,50 @@ def dept():
         deptusers.append(deptmanager)
 
     return render_template('Usermanage/Department/Departments.html', deptuser=deptusers)
+
+
+@Departments_view.route('/AddDepartment', methods=['GET', 'POST'])
+@login_required
+def AddDept():
+    # 从网页取值
+    if request.method == 'POST':
+        deptname = request.form.get('deptname')
+        username = request.form.get('username')
+
+        user = User.query.filter_by(name=username).first()
+        dept = Departments(deptname=deptname, managerid=user.id)
+        dept1 = Departments.query.filter(Departments.deptname == deptname).first()
+        if dept1:
+            error = 'already exist.'
+
+        else:
+            try:
+                db.session.add(dept)
+                db.session.commit()
+                error = 'Add Department successfully.'
+            except Exception as e:
+                error = str(e)
+
+        if user.ismanager == 0:
+            user.ismanager = 1
+        else:
+            user.ismanager = 1
+
+        flash(error)
+        return redirect(url_for('Department.Dept'))
+
+    department = Departments.query.all()
+    users = User.query.all()
+
+    return render_template('Usermanage/Department/AddDept.html', department=department, users=users)
+
+
+## 移除部门 ##
+@Departments_view.route('/delete/<id>/', methods=['GET', 'POST'])
+@login_required
+def delete(id):
+    user = Departments.query.filter_by(id=id).first()
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect(url_for('Department.Dept'))

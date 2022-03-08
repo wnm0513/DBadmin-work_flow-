@@ -23,7 +23,9 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item"><a href="#">
+                  Home
+              </a></li>
               <li class="breadcrumb-item active">我的工单</li>
             </ol>
           </div>
@@ -72,7 +74,7 @@
                         {% else %}
               <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
                         {% endif %}
-          {% endfor %}
+                    {% endfor %}
                     <!-------------errorinfo---------------->
                     <div class="form-group">
                         <label for="sqltext">填写SQL语句</label>
@@ -82,7 +84,8 @@
                 <!-- /.card-body -->
 
                 <div class="card-footer">
-                    <input type="submit" class="btn btn-primary" href="{{ url_for('MineWorkorder.OrderCheck', newrecordsinfo=newrecordsinfo) }}" value="提交"/>
+                    <input type="submit" class="btn btn-primary"
+                           value="提交"/>
                 </div>
               </form>
             </div>
@@ -90,39 +93,6 @@
           </div>
 
         </div>
-
-      <div class="row">
-          <div class="col-md-8">
-           <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">检验结果</h2>
-                     </div>
-             <div class="card-body">
-            <table class="table mb-2">
-                <thead>
-                  <tr>
-                    <th>状态</th>
-                     <th>sql</th>
-                    <th>错误信息</th>
-                    <th>预计影响行数</th>
-                  </tr>
-                  </thead>
-                    <tbody>
-                    {% for checksqlinfo in checksqlsinfo %}
-                    <tr>
-                        <td>{{ checksqlinfo['stage'] }}</td>
-                        <td>{{ checksqlinfo['sql'] }}</td>
-                        <td>{{ checksqlinfo['error_message'] }}</td>
-                        <td>{{ checksqlinfo['affected_rows'] }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-            </table>
-             </div>
-
-            </div>
-           </div>
-      </div>
         <!-- /.row -->
       </div>
         <!-- /.container-fluid -->

@@ -134,9 +134,8 @@ class Workorder(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
     uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
-    iid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='inception ID保留')
     uname = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
-    did = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='inception ID保留')
+    filename = db.Column(db.String(64), index=True, nullable=False, default=0, )  # comment='SQL文件名')
     dname = db.Column(db.String(64), nullable=False, default='', )  # comment='部门名')
     stime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单开始时间')
     etime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单结束时间')
@@ -167,4 +166,6 @@ class InceptionRecords(db.Model):
 
     def __repr__(self):
         return '<InceptionRecords %r>' % self.id
+
+
 
