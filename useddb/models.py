@@ -132,21 +132,35 @@ class Workorder(db.Model):
     '''工作表'''
     __tablename__ = 'workorder'
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
     uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
-    uname = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
+    deptid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='部门ID')
+    username = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
     filename = db.Column(db.String(64), index=True, nullable=False, default=0, )  # comment='SQL文件名')
-    dname = db.Column(db.String(64), nullable=False, default='', )  # comment='部门名')
     stime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单开始时间')
     etime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单结束时间')
-    applytype = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='申请类型，0未定义，1执行sql，2权限申请，3新建数据库')
     applyreason = db.Column(db.String(254), nullable=False, default='', )  # comment='申请理由')
-    schedule = db.Column(db.SmallInteger, nullable=False,
-                         default=0, )  # comment='工单进度, 0未定义，1进行到第一步，2进行到第二步，3进行到第三步，4。。。，20已撤回')
     status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1通过，2未通过，3通过后被回滚')
 
     def __repr__(self):
-        return '<Workorder %r>' % self.woid
+        return '<Workorder %r>' % self.id
+
+
+class WorkFlow(db.Model):
+    '''工作表'''
+    __tablename__ = 'workflow'
+    # 使用下面的配置进行解决
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
+    uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
+    uname = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
+    otime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='操作时间')
+    auditing = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1同意，2拒绝')
+    nowstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='当前走到了哪一步，0表示有问题的')
+    maxstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最大审批长度，0表示有问题的')
+
+    def __repr__(self):
+        return '<WorkFlow %r>' % self.woid
 
 
 class InceptionRecords(db.Model):

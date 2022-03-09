@@ -100,8 +100,16 @@ def AddDept():
 @Departments_view.route('/delete/<id>/', methods=['GET', 'POST'])
 @login_required
 def delete(id):
-    user = Departments.query.filter_by(id=id).first()
-    db.session.delete(user)
+    # 删除部门
+    dept = Departments.query.filter_by(id=id).first()
+    db.session.delete(dept)
     db.session.commit()
+
+    # 修改用户的部门Id
+    users = User.query.filter_by(deptId=id).all()
+    for user in users:
+        user.deptId = 0
+        db.session.delete(user)
+        db.session.commit()
 
     return redirect(url_for('Department.Dept'))

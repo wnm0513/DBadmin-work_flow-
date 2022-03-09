@@ -22,12 +22,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Projects</h1>
+            <h1>工单进度</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Projects</li>
+              <li class="breadcrumb-item active">工单进度</li>
             </ol>
           </div>
         </div>
@@ -40,7 +40,7 @@
       <!-- Default box -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Projects</h3>
+          <h3 class="card-title">工单进度</h3>
 
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -58,533 +58,102 @@
                       <th style="width: 1%">
                           #
                       </th>
-                      <th style="width: 20%">
-                          Project Name
+                      <th style="width: 20%" class="text-center">
+                          工单创建时间
                       </th>
-                      <th style="width: 30%">
-                          Team Members
+                      <th style="width: 10%" class="text-center">
+                          工单提交者
                       </th>
-                      <th>
-                          Project Progress
+                      <th style="width: 10%" class="text-center">
+                          上线类型
+                      </th>
+                      <th style="width: 20%" class="text-center">
+                          工单进度
                       </th>
                       <th style="width: 8%" class="text-center">
-                          Status
+                          工单状态
                       </th>
-                      <th style="width: 20%">
+                      <th style="width: 20%" class="text-center">
+                          快速操作
                       </th>
                   </tr>
               </thead>
               <tbody>
+              {% for workorderinfo in workordersinfo %}
                   <tr>
                       <td>
                           #
                       </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
+                      <td class="text-center">
+                          Created At {{ workorderinfo['stime'] }}
                       </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar2.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                          </ul>
+                      <td class="text-center">
+                          {{ workorderinfo['uname'] }}
                       </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 57%">
-                              </div>
-                          </div>
-                          <small>
-                              57% Complete
-                          </small>
+                      <td class="text-center">
+                          {{ workorderinfo['type'] }}
                       </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
+                      <td class="text-center">
+                          {% if workorderinfo['nowstep'] == 1 %}
+                              已提交，待审批
+                          {% endif %}
+                      {% if workorderinfo['nowstep'] == 2 %}
+                              本部经理已同意，待DBA审批
+                          {% endif %}
+                      {% if workorderinfo['nowstep'] == 3 %}
+                              DBA已同意，待执行
+                          {% endif %}
                       </td>
-                      <td class="project-actions text-right">
+                      {% if workorderinfo['status'] == 0 %}
+                      <td class="text-center">
+                          <span class="badge badge-info">审批中</span>
+                      </td>
+                      <td class="project-actions text-center">
                           <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
+                              查看详情
                           </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
+
+                          {% if g.user.is_manager %}
+                          {% if workorderinfo['nowstep'] == 1 %}
+                          <a class="btn btn-success btn-sm" href="#">
+                              同意
                           </a>
                           <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
+                              驳回
                           </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar2.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="47" aria-valuemin="0" aria-valuemax="100" style="width: 47%">
-                              </div>
-                          </div>
-                          <small>
-                              47% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
+                          {% endif %}
+                          {% endif %}
+
+                          {% if g.user.is_super %}
+                          {% if workorderinfo['nowstep'] == 2 %}
+                           <a class="btn btn-success btn-sm" href="#">
+                              同意
                           </a>
                           <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
+                              驳回
                           </a>
+                          {% endif %}
+                          {% endif %}
                       </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
+                      {% endif %}
+                      {% if workorderinfo['status'] == 1 %}
+                      <td class="text-center">
+                          <span class="badge badge-success">已通过</span>
                       </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar2.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="77" aria-valuemin="0" aria-valuemax="100" style="width: 77%">
-                              </div>
-                          </div>
-                          <small>
-                              77% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
+                      <td class="project-actions text-center">
                           <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
+                              查看详情
                           </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
+                          <a class="btn btn-success btn-sm" href="#">
+                              执行
                           </a>
                           <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
+                              取消
                           </a>
                       </td>
+                      {% endif %}
                   </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar2.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-                              </div>
-                          </div>
-                          <small>
-                              60% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar5.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100" style="width: 12%">
-                              </div>
-                          </div>
-                          <small>
-                              12% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar2.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" style="width: 35%">
-                              </div>
-                          </div>
-                          <small>
-                              35% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar5.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100" style="width: 87%">
-                              </div>
-                          </div>
-                          <small>
-                              87% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="77" aria-valuemin="0" aria-valuemax="100" style="width: 77%">
-                              </div>
-                          </div>
-                          <small>
-                              77% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          #
-                      </td>
-                      <td>
-                          <a>
-                              AdminLTE v3
-                          </a>
-                          <br/>
-                          <small>
-                              Created 01.01.2019
-                          </small>
-                      </td>
-                      <td>
-                          <ul class="list-inline">
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar3.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar4.png">
-                              </li>
-                              <li class="list-inline-item">
-                                  <img alt="Avatar" class="table-avatar" src="../../dist/img/avatar5.png">
-                              </li>
-                          </ul>
-                      </td>
-                      <td class="project_progress">
-                          <div class="progress progress-sm">
-                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="77" aria-valuemin="0" aria-valuemax="100" style="width: 77%">
-                              </div>
-                          </div>
-                          <small>
-                              77% Complete
-                          </small>
-                      </td>
-                      <td class="project-state">
-                          <span class="badge badge-success">Success</span>
-                      </td>
-                      <td class="project-actions text-right">
-                          <a class="btn btn-primary btn-sm" href="#">
-                              <i class="fas fa-folder">
-                              </i>
-                              View
-                          </a>
-                          <a class="btn btn-info btn-sm" href="#">
-                              <i class="fas fa-pencil-alt">
-                              </i>
-                              Edit
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="#">
-                              <i class="fas fa-trash">
-                              </i>
-                              Delete
-                          </a>
-                      </td>
-                  </tr>
+              {% endfor %}
               </tbody>
           </table>
         </div>

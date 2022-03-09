@@ -12,10 +12,11 @@ from flask_login import current_user
 
 from app import login_required
 from config import Config
-from useddb.models import db, Dbs, InceptionRecords
+from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow
 from . import MineWorkorders
 
 path = Config.INCEPTION_PATH
+
 
 def goinceptionCheck(sqltext):
     # 接下来是连接goinception来进行SQL语法判定
@@ -287,42 +288,80 @@ def MineWorkorder():
 @MineWorkorders.route('/OrderCheck/<newrecordsjson>', methods=['GET', 'POST'])
 @login_required
 def OrderCheck(newrecordsjson):
+    # 引用path
     global path
     # 定义存储check信息的列表
     checksqlsinfo = []
+    # 定义存储executed信息的列表
+    executedsqlsinfo = []
+
+    # 从上个视图取值
+    newrecords = json.loads(newrecordsjson)
+    type_id = newrecords[0]['type_id']
+    current_day = newrecords[0]['current_day']
+    filename = newrecords[0]['filename']
+
+    # 读取文件
+    filecontent = open('{path}/{day}/{filename}'.format(path=path, day=current_day, filename=filename),
+                       'r')
+    allsqls = filecontent.readlines()
+    # 将最后一行的dbname取出来
+    dbnamelist = allsqls.pop().split()
+    filecontent.close()
+
+    for allsql in allsqls:
+
+        sqlresults = goinceptionCheck(allsql)
+
+        for sqlresult in sqlresults:
+            # 整合check结果
+            checksqlinfo = {
+                'stage': sqlresult[1],
+                'error_level': sqlresult[2],
+                'stage_status': sqlresult[3],
+                'error_message': sqlresult[4],
+                'sql': sqlresult[5],
+                'affected_rows': sqlresult[6],
+                'execute_time': sqlresult[9],
+                'backup_time': sqlresult[11]
+            }
+            checksqlsinfo.append(checksqlinfo)
+
+    # 当别的视图请求时
     if request.method == 'GET':
 
-        # 从上个视图取值
-        newrecords = json.loads(newrecordsjson)
-        type_id = newrecords[0]['type_id']
-        current_day = newrecords[0]['current_day']
-        filename = newrecords[0]['filename']
+        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id)
 
-        # 读取文件
+    # 当提交表单时
+    if request.method == 'POST':
 
-        filecontent = open('{path}/{day}/{filename}'.format(path=path, day=current_day, filename=filename),
-                           'r')
-        allsqls = filecontent.readlines()
-        dbnamelist = allsqls.pop().split()
-        filecontent.close()
+        user = User.query.filter_by(id=g.user.id).first()
 
-        for allsql in allsqls:
+        # 将数据写入工单表
+        workorder = Workorder(uid=user.id, deptid=user.deptId, username=user.name,
+                              filename=filename, stime=datetime.datetime.now(),
+                              etime=datetime.datetime.now(), applyreason=type_id,
+                              status=0)
 
-            sqlresults = goinceptionCheck(allsql)
+        try:
+            db.session.add(workorder)
+            db.session.commit()
+        except Exception as e:
+            error = str(e)
+            flash(error)
 
-            for sqlresult in sqlresults:
-                # 整合check结果
-                checksqlinfo = {
-                    'stage': sqlresult[1],
-                    'error_level': sqlresult[2],
-                    'stage_status': sqlresult[3],
-                    'error_message': sqlresult[4],
-                    'sql': sqlresult[5],
-                    'affected_rows': sqlresult[6],
-                    'execute_time': sqlresult[9],
-                    'backup_time': sqlresult[11]
-                }
-                checksqlsinfo.append(checksqlinfo)
+        workorder_tmp = Workorder.query.filter_by(filename=filename).first()
 
-        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo,type_id=type_id,dbnamelist=dbnamelist)
+        # 将数据写入审批流表
+        workflow = WorkFlow(woid=workorder_tmp.id, uid=user.id, uname=user.name,
+                            otime=datetime.datetime.now(), auditing=0, nowstep=1,
+                            maxstep=3)
 
+        try:
+            db.session.add(workflow)
+            db.session.commit()
+        except Exception as e:
+            error = str(e)
+            flash(error)
+
+        return redirect(url_for('OrderProcess.OrderProcess'))
