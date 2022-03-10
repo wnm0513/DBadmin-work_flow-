@@ -109,12 +109,11 @@
                           <span class="badge badge-info">审批中</span>
                       </td>
                       <td class="project-actions text-center">
-                          <a class="btn btn-primary btn-sm" href="#">
+                          <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
                               查看详情
                           </a>
 
-                          {% if g.user.is_manager %}
-                          {% if workorderinfo['nowstep'] == 1 %}
+                          {% if g.user.is_manager and workorderinfo['nowstep'] == 1 %}
                           <a class="btn btn-success btn-sm" href="#">
                               同意
                           </a>
@@ -122,17 +121,14 @@
                               驳回
                           </a>
                           {% endif %}
-                          {% endif %}
 
-                          {% if g.user.is_super %}
-                          {% if workorderinfo['nowstep'] == 2 %}
+                          {% if g.user.is_super and workorderinfo['nowstep'] == 2 %}
                            <a class="btn btn-success btn-sm" href="#">
                               同意
                           </a>
                           <a class="btn btn-danger btn-sm" href="#">
                               驳回
                           </a>
-                          {% endif %}
                           {% endif %}
                       </td>
                       {% endif %}
@@ -141,7 +137,7 @@
                           <span class="badge badge-success">已通过</span>
                       </td>
                       <td class="project-actions text-center">
-                          <a class="btn btn-primary btn-sm" href="#">
+                          <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
                               查看详情
                           </a>
                           <a class="btn btn-success btn-sm" href="#">
