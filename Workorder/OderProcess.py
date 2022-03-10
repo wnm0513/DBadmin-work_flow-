@@ -3,6 +3,7 @@ import datetime
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from sqlalchemy import and_
 
 from app import login_required
 from config import Config
@@ -19,13 +20,13 @@ def OrderProcess():
     # 定义列表
     workordersinfo = []
 
-    # 查询工单，并以权限分类用户能看到的工单
+    # 查询工单，并以权限分类用户能看到的正在进行的工单
     if g.user.is_super():
-        workorders = Workorder.query.all()
+        workorders = Workorder.query.filter(Workorder.status == 0).all()
     elif g.user.is_manager():
-        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId).all()
+        workorders = db.session.query(Workorder).filter(and_(Workorder.deptid == g.user.deptId, Workorder.status == 0)).all()
     else:
-        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id).all()
+        workorders = db.session.query(Workorder).filter(and_(Workorder.uid == g.user.id, Workorder.status == 0)).all()
 
     for workorder in workorders:
         deptname = db.session.query(Departments.deptname).filter(Departments.id == workorder.deptid)
@@ -37,6 +38,7 @@ def OrderProcess():
             'stime': workorder.stime,
             'type': workorder.applyreason,
             'nowstep': workflow.nowstep,
+            'auditing': workflow.auditing,
             'status': workorder.status
         }
         workordersinfo.append(workorderinfo)
@@ -51,7 +53,7 @@ def OrderDetail(id):
     global path
     # 定义列表
     sqlsinfo = []
-    
+
     # 查询对应的工单
     workorder = db.session.query(Workorder).filter_by(id=id).first()
     workflow = db.session.query(WorkFlow).filter_by(woid=id).first()
@@ -65,7 +67,7 @@ def OrderDetail(id):
     # 将最后一行的dbname取出来
     dbnamelist = allsqls.pop().split()
     filecontent.close()
-    
+
     for allsql in allsqls:
 
         sqlresults = goinceptionCheck(allsql)
@@ -86,10 +88,79 @@ def OrderDetail(id):
 
     # 当别的视图请求时
     if request.method == 'GET':
-        return render_template('workorder/OrderProcess/OrderDetail.html', sqlsinfo=sqlsinfo, workorder=workorder, workflow=workflow)
+        return render_template('workorder/OrderProcess/OrderDetail.html', sqlsinfo=sqlsinfo, workorder=workorder,
+                               workflow=workflow)
 
 
+## 同意 ##
+@OrderProcesses.route('/agree/<woid>/', methods=['GET', 'POST'])
+@login_required
+def agree(woid):
+    workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
+
+    # 已提交
+    if workflow.nowstep == 1:
+        workflow.nowstep = 2
+
+    # 经理审核
+    elif workflow.nowstep == 2:
+        workflow.nowstep = 3
+
+    # DBA审核
+    elif workflow.nowstep == workflow.maxstep:
+        workflow.auditing = 1
+
+    # 提交
+    try:
+        db.session.add(workflow)
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderProcess.OrderProcess'))
 
 
+## 执行 ##
+@OrderProcesses.route('/execute/<woid>/', methods=['GET', 'POST'])
+@login_required
+def execute(woid):
+    workorder = WorkFlow.query.filter(WorkFlow.woid == woid).first()
+
+    # 表示工单已通过
+    workorder.status = 1
+
+    # 提交
+    try:
+        db.session.add(workorder)
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderProcess.OrderProcess'))
 
 
+## 驳回 ##
+@OrderProcesses.route('/refused/<woid>/', methods=['GET', 'POST'])
+@login_required
+def refused(woid):
+    workorder = Workorder.query.filter(Workorder.id == woid).first()
+
+    workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
+
+    # 表示工单未通过
+    workorder.status = 2
+
+    # 表示在审批流中被拒绝
+    workflow.auditing = 2
+
+    # 提交
+    try:
+        db.session.add(workorder, workflow)
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderProcess.OrderProcess'))

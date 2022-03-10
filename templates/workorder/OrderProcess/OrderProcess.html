@@ -104,7 +104,7 @@
                               DBA已同意，待执行
                           {% endif %}
                       </td>
-                      {% if workorderinfo['status'] == 0 %}
+                      {% if workorderinfo['auditing'] == 0 %}
                       <td class="text-center">
                           <span class="badge badge-info">审批中</span>
                       </td>
@@ -132,9 +132,10 @@
                           {% endif %}
                       </td>
                       {% endif %}
-                      {% if workorderinfo['status'] == 1 %}
+
+                      {% if workorderinfo['auditing'] == 1 %}
                       <td class="text-center">
-                          <span class="badge badge-success">已通过</span>
+                          <span class="badge badge-success">已同意</span>
                       </td>
                       <td class="project-actions text-center">
                           <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">

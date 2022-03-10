@@ -72,8 +72,8 @@ def AddUser():
                 db.session.add(user)
                 db.session.commit()
                 error = 'registered successfully.'
-            except db.IntegrityError:
-                error = 'adding error!!!'
+            except Exception as e:
+                error = str(e)
 
         flash(error)
 
