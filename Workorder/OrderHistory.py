@@ -16,20 +16,19 @@ def OrderHistory():
 
     # 查询工单，并以权限分类用户能看到的正在进行的工单
     if g.user.is_super():
-        workorders = Workorder.query.filter(Workorder.status == 0).all()
+        workorders = Workorder.query.all()
     elif g.user.is_manager():
-        workorders = db.session.query(Workorder).filter(
-            and_(Workorder.deptid == g.user.deptId, Workorder.status == 0)).all()
+        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId).all()
     else:
-        workorders = db.session.query(Workorder).filter(and_(Workorder.uid == g.user.id, Workorder.status == 0)).all()
+        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id).all()
 
     for workorder in workorders:
-        deptname = db.session.query(Departments.deptname).filter(Departments.id == workorder.deptid)
+        dept = db.session.query(Departments).filter(Departments.id == workorder.deptid).first()
         workflow = WorkFlow.query.filter(WorkFlow.woid == workorder.id).first()
         workorderinfo = {
             'id': workorder.id,
             'uname': workflow.uname,
-            'deptname': deptname,
+            'deptname': dept.deptname,
             'stime': workorder.stime,
             'type': workorder.applyreason,
             'nowstep': workflow.nowstep,
@@ -38,4 +37,4 @@ def OrderHistory():
         }
         workordersinfo.append(workorderinfo)
 
-    return render_template('workorder/OrderHistory/OrderHistory.html')
+    return render_template('workorder/OrderHistory/OrderHistory.html', workordersinfo=workordersinfo)

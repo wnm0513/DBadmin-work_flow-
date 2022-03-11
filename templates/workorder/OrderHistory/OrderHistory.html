@@ -3,19 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | Timeline</title>
+  <title>OrderProcess</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
-  <!-- AdminLTE css -->
+  <!-- Theme style -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
 </head>
 <body class="hold-transition sidebar-mini dark-mode">
 <!-- Site wrapper -->
 <div class="wrapper">
-
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -23,12 +22,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Timeline</h1>
+            <h1>工单进度</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Timeline</li>
+              <li class="breadcrumb-item active">工单进度</li>
             </ol>
           </div>
         </div>
@@ -37,78 +36,95 @@
 
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
 
-        <!-- Timelime example  -->
-        <div class="row">
-          <div class="col-md-12">
-            <!-- The time line -->
-            <div class="timeline">
-              <!-- timeline time label -->
-              <div class="time-label">
-                <span class="bg-red">10 Feb. 2014</span>
-              </div>
-              <!-- /.timeline-label -->
-              <!-- timeline item -->
-              <div>
-                <i class="fas fa-envelope bg-blue"></i>
-                <div class="timeline-item">
-                  <span class="time"><i class="fas fa-clock"></i> 12:05</span>
-                  <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+      <!-- Default box -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">工单进度</h3>
 
-                  <div class="timeline-body">
-                    Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                    weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                    jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                    quora plaxo ideeli hulu weebly balihoo...
-                  </div>
-                  <div class="timeline-footer">
-                    <a class="btn btn-primary btn-sm">Read more</a>
-                    <a class="btn btn-danger btn-sm">Delete</a>
-                  </div>
-                </div>
-              </div>
-              <!-- END timeline item -->
-              <!-- timeline item -->
-              <div>
-                <i class="fas fa-user bg-green"></i>
-                <div class="timeline-item">
-                  <span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
-                  <h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
-                </div>
-              </div>
-              <!-- END timeline item -->
-              <!-- timeline item -->
-              <div>
-                <i class="fas fa-comments bg-yellow"></i>
-                <div class="timeline-item">
-                  <span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
-                  <h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-                  <div class="timeline-body">
-                    Take me to your leader!
-                    Switzerland is small and neutral!
-                    We are more like Germany, ambitious and misunderstood!
-                  </div>
-                  <div class="timeline-footer">
-                    <a class="btn btn-warning btn-sm">View comment</a>
-                  </div>
-                </div>
-              </div>
-              <!-- END timeline item -->
-              <!-- timeline time label -->
-              <div class="time-label">
-                <span class="bg-green">3 Jan. 2014</span>
-              </div>
-              <!-- /.timeline-label -->
-              <div>
-                <i class="fas fa-clock bg-gray"></i>
-              </div>
-            </div>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
-          <!-- /.col -->
         </div>
+        <div class="card-body p-0">
+          <table class="table table-striped projects">
+              <thead>
+                  <tr>
+                      <th style="width: 1%">
+                          #
+                      </th>
+                      <th style="width: 20%" class="text-center">
+                          工单创建时间
+                      </th>
+                      <th style="width: 10%" class="text-center">
+                          工单提交者
+                      </th>
+                      <th style="width: 20%" class="text-center">
+                          工单提交者部门
+                      </th>
+                      <th style="width: 10%" class="text-center">
+                          上线类型
+                      </th>
+                      <th style="width: 8%" class="text-center">
+                          工单状态
+                      </th>
+                      <th style="width: 20%" class="text-center">
+                          快速操作
+                      </th>
+                  </tr>
+              </thead>
+              <tbody>
+              {% for workorderinfo in workordersinfo %}
+                  {% if workorderinfo['status'] != 0 %}
+                  <tr>
+                      <td>
+                          #
+                      </td>
+                      <td class="text-center">
+                          Created At {{ workorderinfo['stime'] }}
+                      </td>
+                      <td class="text-center">
+                          {{ workorderinfo['uname'] }}
+                      </td>
+
+                      <td class="text-center">
+                          {{ workorderinfo['deptname'] }}
+                      </td>
+                      <td class="text-center">
+                          {{ workorderinfo['type'] }}
+                      </td>
+
+                      {% if workorderinfo['status'] == 1 %}
+                      <td class="text-center">
+                          <span class="badge badge-info">已通过</span>
+                      </td>
+                      <td class="project-actions text-center">
+                          <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
+                              查看详情
+                          </a>
+
+                          {% if g.user.is_super and workorderinfo['status'] == 1 %}
+                          <a class="btn btn-danger btn-sm" href="#">
+                              回滚
+                          </a>
+                          {% endif %}
+                      </td>
+                      {% endif %}
+
+                  </tr>
+                  {% endif %}
+              {% endfor %}
+              </tbody>
+          </table>
+        </div>
+        <!-- /.card-body -->
       </div>
-      <!-- /.timeline -->
+      <!-- /.card -->
 
     </section>
     <!-- /.content -->
