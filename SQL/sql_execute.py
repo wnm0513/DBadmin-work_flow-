@@ -20,6 +20,23 @@ from . import sqlExecutes
 @sqlExecutes.route('/sqlExecute', methods=['GET', 'POST'])
 @login_required
 def sqlExecute():
+    # 根据用户权限选择可选择查询的数据库
+    if g.user.is_super():
+        dbs = db.session.query(Dbs.ip, Dbs.name).all()
+    else:
+        mydeptdbslist = []
+        mydept_dbs = db.session.query(Dbs.name) \
+            .join(DbsDept, DbsDept.dbid == Dbs.id) \
+            .join(Departments, Departments.id == DbsDept.deptid) \
+            .join(User, User.deptId == Departments.id) \
+            .filter(User.id == g.user.id).all()
+        for mydept_db in mydept_dbs:
+            dbs = db.session.query(Dbs.ip, Dbs.name).group_by(Dbs.ip).filter(Dbs.name == mydept_db[0]).first()
+            mydeptdblist = {
+                'ip': dbs.ip,
+                'name': dbs.name
+            }
+
     dbs_ip = db.session.query(Dbs.ip).group_by(Dbs.ip).all()
     dbs_name = db.session.query(Dbs.name).all()
     # 如果提交了SQL语句

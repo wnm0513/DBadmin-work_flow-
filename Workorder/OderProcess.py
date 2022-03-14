@@ -3,13 +3,15 @@ import datetime
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+
+
 from sqlalchemy import and_
 
 from app import login_required
 from config import Config
-from useddb.models import WorkFlow, Workorder, db, Departments
+from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute
 from . import OrderProcesses
-from .MineWorkorder import goinceptionCheck
+from .MineWorkorder import goinceptionCheck, goinceptionExecute
 
 path = Config.INCEPTION_PATH
 
@@ -98,6 +100,7 @@ def OrderDetail(id):
 def agree(woid):
     workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
 
+
     # 已提交
     if workflow.nowstep == 1:
         workflow.nowstep = 2
@@ -125,7 +128,37 @@ def agree(woid):
 @OrderProcesses.route('/execute/<woid>/', methods=['GET', 'POST'])
 @login_required
 def execute(woid):
-    workorder = WorkFlow.query.filter(WorkFlow.woid == woid).first()
+    workorder = Workorder.query.filter(Workorder.id == woid).first()
+    date = datetime.datetime.strptime(str(workorder.stime), '%Y-%m-%d %H:%M:%S').date()
+    orderdate = str(date).replace('-', '')
+
+    # 读取文件
+    filecontent = open('{path}/{day}/{filename}'.format(path=path, day=orderdate, filename=workorder.filename),
+                       'r')
+    allsqls = filecontent.readlines()
+    # 将最后一行的dbname取出来
+    dbnamelist = allsqls.pop().split()
+    filecontent.close()
+
+    for allsql in allsqls:
+
+        # 执行
+        sqlresults = goinceptionExecute(allsql)
+
+        for sqlresult in sqlresults:
+            # 记录执行结果
+            executedsql = InceptionRecordsExecute(woid=woid, sequence=sqlresult[7], exetime=datetime.datetime.now(),
+                                                  sqltext=sqlresult[5], affrows=sqlresult[6], executetime=sqlresult[9],
+                                                  exstatus=sqlresult[3], extype=1, opid_time=sqlresult[11],
+                                                  backup_dbname=sqlresult[8])
+
+            # 提交
+            try:
+                db.session.add(executedsql)
+                db.session.commit()
+            except Exception as e:
+                error = str(e)
+                flash(error)
 
     # 表示工单已通过
     workorder.status = 1

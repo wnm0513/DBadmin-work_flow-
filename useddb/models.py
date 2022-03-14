@@ -182,4 +182,21 @@ class InceptionRecords(db.Model):
         return '<InceptionRecords %r>' % self.id
 
 
+class InceptionRecordsExecute(db.Model):
+    '''工作表'''
+    __tablename__ = 'inception_records_execute'
+    # 使用下面的配置进行解决
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
+    sequence = db.Column(db.String(50), index=True, nullable=False, default=0, )  # comment='执行的sql块信息')
+    exetime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='开始执行时间')
+    sqltext = db.Column(db.Text, )  # comment='操作文本')
+    affrows = db.Column(db.Integer, nullable=False, default=0, )  # comment='影响的行数')
+    executetime = db.Column(db.FLOAT, nullable=False, default=0.0, )  # comment='耗时多少秒')
+    exstatus = db.Column(db.String(64), nullable=False, default=0, )  # comment='执行状态'
+    extype = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='操作类型:1，执行 2，回滚')
+    opid_time = db.Column(db.String(50), nullable=False, default='', )
+    backup_dbname = db.Column(db.String(64), nullable=False, default='', )
 
+    def __repr__(self):
+        return '<InceptionRecordsExecute %r>' % self.id

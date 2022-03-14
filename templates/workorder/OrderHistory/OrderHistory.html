@@ -22,12 +22,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>工单进度</h1>
+            <h1>历史工单</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">工单进度</li>
+              <li class="breadcrumb-item active">历史工单</li>
             </ol>
           </div>
         </div>
@@ -38,20 +38,19 @@
     <section class="content">
 
       <!-- Default box -->
-      <div class="card">
+          <div class="card">
         <div class="card-header">
-          <h3 class="card-title">工单进度</h3>
+
+          <h3 class="card-title">历史工单</h3>
 
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
               <i class="fas fa-minus"></i>
             </button>
-            <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-              <i class="fas fa-times"></i>
-            </button>
           </div>
         </div>
-        <div class="card-body p-0">
+
+          <div class="card-body p-0">
           <table class="table table-striped projects">
               <thead>
                   <tr>
@@ -78,36 +77,40 @@
                       </th>
                   </tr>
               </thead>
-              <tbody>
-              {% for workorderinfo in workordersinfo %}
+
+     {% for workorderinfo in workordersinfo %}
+         {% if workorderinfo['status'] == 1 %}
+
+          <table class="table table-striped projects">
+
                   {% if workorderinfo['status'] != 0 %}
+                  <tbody>
                   <tr>
-                      <td>
+                      <td style="width: 1%">
                           #
                       </td>
-                      <td class="text-center">
+                      <td style="width: 20%" class="text-center">
                           Created At {{ workorderinfo['stime'] }}
                       </td>
-                      <td class="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['uname'] }}
                       </td>
 
-                      <td class="text-center">
+                      <td style="width: 20%" class="text-center">
                           {{ workorderinfo['deptname'] }}
                       </td>
-                      <td class="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['type'] }}
                       </td>
 
                       {% if workorderinfo['status'] == 1 %}
-                      <td class="text-center">
+                      <td style="width: 8%" class="text-center">
                           <span class="badge badge-info">已通过</span>
                       </td>
-                      <td class="project-actions text-center">
-                          <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
+                      <td style="width: 20%" class="project-actions text-center">
+                          <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#detailGo{{ workorderinfo['id'] }}" >
                               查看详情
-                          </a>
-
+                          </button>
                           {% if g.user.is_super and workorderinfo['status'] == 1 %}
                           <a class="btn btn-danger btn-sm" href="#">
                               回滚
@@ -117,15 +120,186 @@
                       {% endif %}
 
                   </tr>
-                  {% endif %}
-              {% endfor %}
-              </tbody>
-          </table>
-        </div>
-        <!-- /.card-body -->
-      </div>
-      <!-- /.card -->
 
+                      </tbody>
+                  {% endif %}
+
+          </table>
+
+          <div class="list-group collapse" id="detailGo{{ workorderinfo['id'] }}">
+                           <table class="table mb-2">
+                <thead>
+                  <tr>
+                    <th style="width: 20%" class="text-center">执行时间</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 20%" class="text-center">执行耗费时间</th>
+                    <th style="width: 20%" class="text-center">执行状态</th>
+                      <th style="width: 10%" class="text-center">影响行数</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for executedsqlinfo in workorderinfo['executedsqlsinfo'] %}
+                    <tr>
+                        <td class="text-center">{{ executedsqlinfo['exetime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['executetime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+                      </div>
+
+
+         {% endif %}
+
+         {% if workorderinfo['status'] == 2 %}
+
+          <table class="table table-striped projects">
+
+                  {% if workorderinfo['status'] == 2 %}
+                  <tbody>
+                  <tr>
+                      <td style="width: 1%">
+                          #
+                      </td>
+                      <td style="width: 20%" class="text-center">
+                          Created At {{ workorderinfo['stime'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['uname'] }}
+                      </td>
+
+                      <td style = "width: 20%" class ="text-center">
+                          {{ workorderinfo['deptname'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['type'] }}
+                      </td>
+
+                      {% if workorderinfo['status'] == 2 %}
+                      <td style = "width: 8%" class ="text-center">
+                          <span class="badge badge-danger">未通过</span>
+                      </td>
+                      <td style = "width: 20%" class="project-actions text-center">
+                          <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#detailGo{{ workorderinfo['id'] }}" >
+                              查看详情
+                          </button>
+                      </td>
+                      {% endif %}
+
+                  </tr>
+
+                      </tbody>
+                  {% endif %}
+
+          </table>
+
+          <div class="list-group collapse" id="detailGo{{ workorderinfo['id'] }}">
+                           <table class="table mb-2">
+                <thead>
+                  <tr>
+                    <th style="width: 20%" class="text-center">执行时间</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 20%" class="text-center">执行耗费时间</th>
+                    <th style="width: 20%" class="text-center">执行状态</th>
+                      <th style="width: 10%" class="text-center">影响行数</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for sqlinfo in workorderinfo['sqlsinfo'] %}
+                    <tr>
+                        <td class="text-center">未执行</td>
+                        <td class="text-center">{{ sqlinfo['sqltext'] }}</td>
+                        <td class="text-center">未执行</td>
+                        <td class="text-center">未执行</td>
+                        <td class="text-center">未执行</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+                      </div>
+
+
+      <!-- /.card -->
+         {% endif %}
+         {% if workorderinfo['status'] == 3 %}
+
+          <table class="table table-striped projects">
+
+
+
+                  {% if workorderinfo['status'] == 2 %}
+                  <tbody>
+                  <tr>
+                      <td style="width: 1%">
+                          #
+                      </td>
+                      <td style = "width: 20%" class="text-center">
+                          Created At {{ workorderinfo['stime'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['uname'] }}
+                      </td>
+
+                      <td style = "width: 20%" class ="text-center">
+                          {{ workorderinfo['deptname'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['type'] }}
+                      </td>
+
+                      {% if workorderinfo['status'] == 3 %}
+                      <td style = "width: 8%" class ="text-center">
+                          <span class="badge badge-warning">已回滚</span>
+                      </td>
+                      <td style = "width: 20%" class="project-actions text-center">
+                          <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#detailGo{{ workorderinfo['id'] }}" >
+                              查看详情
+                          </button>
+                      </td>
+                      {% endif %}
+
+                  </tr>
+
+                      </tbody>
+                  {% endif %}
+
+          </table>
+
+          <div class="list-group collapse" id="detailGo{{ workorderinfo['id'] }}">
+                           <table class="table mb-2">
+                <thead>
+                  <tr>
+                    <th style="width: 20%" class="text-center">执行时间</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 20%" class="text-center">执行耗费时间</th>
+                    <th style="width: 20%" class="text-center">执行状态</th>
+                      <th style="width: 10%" class="text-center">影响行数</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for executedsqlinfo in workorderinfo['executedsqlsinfo'] %}
+                    <tr>
+                        <td class="text-center">{{ executedsqlinfo['exetime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['executetime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+                      </div>
+
+         {% endif %}
+    {% endfor %}
+
+
+          </table>
+          </div>
+          </div>
     </section>
     <!-- /.content -->
   </div>

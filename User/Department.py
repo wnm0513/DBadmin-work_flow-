@@ -83,9 +83,18 @@ def AddDept():
                 error = str(e)
 
         if user.ismanager == 0:
+            dept2 = Departments.query.filter(Departments.deptname == deptname).first()
             user.ismanager = 1
+            user.deptId = dept2.id
         else:
-            user.ismanager = 1
+            dept2 = Departments.query.filter(Departments.deptname == deptname).first()
+            user.deptId = dept2.id
+        try:
+            db.session.add(user)
+            db.session.commit()
+            error = 'Add Department successfully.'
+        except Exception as e:
+            error = str(e)
 
         flash(error)
         return redirect(url_for('Department.Dept'))

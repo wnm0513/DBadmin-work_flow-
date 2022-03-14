@@ -12,7 +12,7 @@ from flask_login import current_user
 
 from app import login_required
 from config import Config
-from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow
+from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow, DbsDept, Departments
 from . import MineWorkorders
 
 path = Config.INCEPTION_PATH
@@ -97,8 +97,12 @@ def MineWorkorder():
     if request.method == 'POST':
         sqltext = request.form.get('sqltext')
         type_id = request.form.get('type_id')
-
         error = None
+        # 必须选择上线类型
+        if type_id == '--请选择类型--':
+            error = "请选择相应的上线类型"
+            flash(error)
+            return render_template('workorder/MineWorkorder/MineWorkorder.html')
         # 下面是为了规范SQL，在goinception前做的预判定
         if not str(sqltext).replace('\r\n', '').replace('\n', '').strip().endswith(';'):
             error = "SQL请以英文模式下的';'结尾"
@@ -108,16 +112,14 @@ def MineWorkorder():
         # 根据输入的分号将多条语句分割为单独的行
         sqllist = sqltext.replace('\r\n', ' ').replace('\n', ' ').replace(';', ';-*-*-*-').split('-*-*-*-')
         dbnamelist = []
-        alldb_tmp = db.session.query(Dbs.name).all()
-        alldbs = []
-        for onedb in alldb_tmp:
-            alldbs.append(onedb)
-        # 提取数据库名称，并与现有的数据库名称对比，判断语句是否合法
+
         for sql in sqllist:
             tmp_sql = str(sql).replace('`', '').lstrip()
+
             if str.lower(tmp_sql).startswith('insert'):
                 db_tbname = re.findall(r"insert *into *([\w]*\.[\w]*).*", tmp_sql, re.M | re.IGNORECASE)
                 dbname = ''.join(db_tbname).split('.')[0]
+
                 if dbname == '':
                     error = '请指定数据库'
                     flash(error)
@@ -193,6 +195,26 @@ def MineWorkorder():
             else:
                 if tmp_sql != '':
                     error = '请输入合法的SQL语句！'
+                    flash(error)
+                    return render_template('workorder/MineWorkorder/MineWorkorder.html')
+
+            # 在用户不是管理员的情况下
+            if not g.user.is_super():
+                # 对用户是否有权限操作数据库进行判断
+                mydept_dbs = []  # 部门维度的数据库权限列表
+                # 这里是对部门的权限进行判断，如果部门拥有这个数据库，那么就可以操作这个数据库，否则报错提示没有权限
+                mydept_db = db.session.query(Dbs.name) \
+                    .join(DbsDept, DbsDept.dbid == Dbs.id) \
+                    .join(Departments, Departments.id == DbsDept.deptid) \
+                    .join(User, User.deptId == Departments.id) \
+                    .filter(User.id == g.user.id).all()
+                for onedb in mydept_db:
+                    mydept_dbs.append(onedb[0])
+
+                nopridblist = list(set(dbnamelist).difference(set(mydept_dbs)))
+                # 如果含有没有操作权限的数据库
+                if len(nopridblist) > 0:
+                    error = '您并不其具有以下数据库的操作权限：{nopridblist}'.format(nopridblist=nopridblist)
                     flash(error)
                     return render_template('workorder/MineWorkorder/MineWorkorder.html')
 
@@ -329,8 +351,7 @@ def OrderCheck(newrecordsjson):
 
     # 当别的视图请求时
     if request.method == 'GET':
-
-        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id)
+        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id, filename=filename)
 
     # 当提交表单时
     if request.method == 'POST':
@@ -365,3 +386,18 @@ def OrderCheck(newrecordsjson):
             flash(error)
 
         return redirect(url_for('OrderProcess.OrderProcess'))
+
+
+## 取消 ##
+@MineWorkorders.route('/refused/<filename>/', methods=['GET', 'POST'])
+@login_required
+def cancel(filename):
+    # 提交
+    try:
+        db.session.query(InceptionRecords).filter(InceptionRecords.filename == filename).delete()
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('MineWorkorder.MineWorkorder'))

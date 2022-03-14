@@ -36,6 +36,19 @@
 
     <!-- Main content -->
     <section class="content">
+    {% for message in get_flashed_messages() %}
+          <div class="row-md-3" >
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        {% if message == 'registered successfully.' %}
+                      <div class="pace-flash-primary"><span class="float-right text-md-center text-success">{{ message }}</span></div>
+                        {% else %}
+                        <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+                       {% endif %}
+                        </div>
+                </div>
+          </div>
+          {% endfor %}
 
       <!-- Default box -->
       <div class="card">
@@ -114,19 +127,19 @@
                           </a>
 
                           {% if g.user.is_manager and workorderinfo['nowstep'] == 1 %}
-                          <a class="btn btn-success btn-sm" href="#">
+                          <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
                               同意
                           </a>
-                          <a class="btn btn-danger btn-sm" href="#">
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
                               驳回
                           </a>
                           {% endif %}
 
                           {% if g.user.is_super and workorderinfo['nowstep'] == 2 %}
-                           <a class="btn btn-success btn-sm" href="#">
+                           <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
                               同意
                           </a>
-                          <a class="btn btn-danger btn-sm" href="#">
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
                               驳回
                           </a>
                           {% endif %}
@@ -141,10 +154,10 @@
                           <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
                               查看详情
                           </a>
-                          <a class="btn btn-success btn-sm" href="#">
+                          <a class="btn btn-success btn-sm" onclick="return confirm('确定执行此工单吗？');" href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
                               执行
                           </a>
-                          <a class="btn btn-danger btn-sm" href="#">
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
                               取消
                           </a>
                       </td>
