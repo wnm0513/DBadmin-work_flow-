@@ -11,8 +11,14 @@
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
   <!-- Select2 -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/select2/css/select2.min.css">
-  <!-- Theme style -->
+  <!-- DataTables -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Theme style -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+        <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
 </head>
 <body class="hold-transition sidebar-mini dark-mode">
 <div class="wrapper">
@@ -24,155 +30,94 @@
         <div class="container-fluid">
             <h2 class="text-center display-4">SQL执行</h2>
            <div class="row">
-           <div class="col-md-8">
+           <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">SELECT语句执行</h2>
                      </div>
+
+             <form method="post">
              <div class="card-body">
-            <form>
                 <div class="row">
                     <div class="col-md-10 offset-md-1">
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label>IP:</label>
-                                    <select class="select2" style="width: 100%;">
-                                    <option selected>--请选择IP--</option>
-                                        {% for db_ip in dbs_ip %}
-                                        <option>{{ db_ip['ip'] }}</option>
-                                        {% endfor %}
+                                    <label for="select_env">环境:</label>
+                                    <select id="select_env" name="select_env" class="select2" style="width: 100%;">
+                                    <option selected>--请选择环境--</option>
+                                        <option>生产</option>
+                                        <option>预发</option>
+                                        <option>测试</option>
+                                        <option>开发</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="form-group">
-                                    <label>数据库:</label>
-                                    <select class="select2" style="width: 100%;">
+                                    <label for="select_db">数据库:</label>
+                                    <select id="select_db" name="select_db" class="select2" style="width: 100%;">
                                     <option selected>--请选择数据库--</option>
-                                        {% for db_name in dbs_name %}
-                                        <option>{{ db_name['name'] }}</option>
+                                        {% for db in dbs %}
+                                        <option>{{ db['name'] }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
                         </div>
+
+
+                    {% for message in get_flashed_messages() %}
+                        {% if message == None %}
+                    <div class="pace-flash-primary"><span class="float-right text-md-center text-success">{{ 'Submit Successfully!' }}</span></div>
+                        {% else %}
+                    <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
+                        {% endif %}
+                    {% endfor %}
+                    <!-------------errorinfo---------------->
+
                         <div class="form-group">
                                 <textarea type="search" name="sqltext" class="form-control form-control-lg" placeholder="请输入SQL"></textarea>
                         </div>
                     </div>
                 </div>
-            </form>
              </div>
 
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-md-10">
-                     <input type="submit" class="btn btn-success" value="检验语句">
-                            </div>
                         <div class="col-md-1">
-                     <input type="submit" class="btn btn-primary" value="确定执行">
+                     <input type="submit" class="btn btn-primary" value="确定查询">
                         </div>
 
                         </div>
                 </div>
-
-            </div>
-           </div>
-           <div class="col-md-4">
-           <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">查询结果</h2>
-                     </div>
-             <div class="card-body">
-            <table class="table mb-2">
-                <thead>
-                  <tr>
-                    <th>错误等级</th>
-                    <th>错误信息</th>
-                  </tr>
-                  </thead>
-                    <tbody>
-                    {% for db in dbs %}
-                    <tr>
-                        <td>{{ db['name'] }}</td>
-                        <td>{{ db['ip'] }}</td>
-                        <td>{{ db['port'] }}</td>
-
-                        {% if not db[5] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[5] }}</td>
-                        {% endif %}
-
-                        {% if not db[6] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[6] }}</td>
-                        {% endif %}
-
-                        <td>{{ db['note'] }}</td>
-                        <td>
-                        <a class="btn btn-info" href="{{ url_for('AllDB.EditDB', dbname=db['name']) }}">编辑</a>
-                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('AllDB.delete', dbname=db['name']) }}">删除</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-            </table>
-             </div>
-
-                <div class="card-footer">
-                    <p>预计影响行数：Num</p>
-                </div>
+             </form>
 
             </div>
            </div>
            </div>
 
+            {% if result %}
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">执行结果</h3>
+                <h3 class="card-title">查询结果</h3>
               </div>
               <!-- /.card-header -->
-              <!-- form start -->
-              <form method="post">
                 <div class="card-body">
                    <table id="example1" class="table m-0">
                   <thead>
                   <tr>
-                    <th>库名</th>
-                    <th>IP</th>
-                    <th>执行的SQL</th>
-                    <th>影响行数</th>
-                    <th>执行时间</th>
-                    <th>执行者</th>
+                      {% for result_title in result[0] %}
+                    <th>{{ result_title }}</th>
+                      {% endfor %}
                   </tr>
                   </thead>
                     <tbody>
-                    {% for db in dbs %}
+                    {% for result_content in result[1] %}
                     <tr>
-                        <td>{{ db['name'] }}</td>
-                        <td>{{ db['ip'] }}</td>
-                        <td>{{ db['port'] }}</td>
-
-                        {% if not db[5] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[5] }}</td>
-                        {% endif %}
-
-                        {% if not db[6] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[6] }}</td>
-                        {% endif %}
-
-                        <td>{{ db['note'] }}</td>
-                        <td>
-                        <a class="btn btn-info" href="{{ url_for('AllDB.EditDB', dbname=db['name']) }}">编辑</a>
-                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('AllDB.delete', dbname=db['name']) }}">删除</a>
-                        </td>
+                        {% for i in range(count_col) %}
+                        <td>{{ result_content[i] }}</td>
+                        {% endfor %}
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -180,8 +125,8 @@
                 </div>
                 <!-- /.card-body -->
 
-              </form>
             </div>
+            {% endif %}
         </div>
     </section>
   </div>
@@ -194,16 +139,60 @@
 <script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/jszip/jszip.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Select2 -->
 <script src="../../../static/AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+
+<!-- PAGE PLUGINS -->
+<!-- jQuery Mapael -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/raphael/raphael.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery-mapael/maps/usa_states.min.js"></script>
+<!-- ChartJS -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/chart.js/Chart.min.js"></script>
 <script>
     $(function () {
-      $('.select2').select2()
+      $('.select2').select2();
+
+      $("#example1").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": true,
+        "aLengthMenu" : [ [10, 20, 50, 100, -1 ],
+                        ["10", "20", "50", "100", "所有" ] ],
+          "oLanguage" : {
+                      "sLengthMenu" : "每页显示 _MENU_ 条记录",
+                      "sZeroRecords" : "对不起，没有匹配的数据",
+                      "sInfo" : "第 _START_ - _END_ 条 / 共 _TOTAL_ 条数据",
+                      "sInfoEmpty" : "没有匹配的数据",
+                      "sInfoFiltered" : "(数据表中共 _MAX_ 条记录)",
+                      "sProcessing" : "正在加载中...",
+                      "sSearch" : "搜索：",
+                      "oPaginate" : {
+                        "sFirst" : "第一页",
+                        "sPrevious" : " 上一页 ",
+                        "sNext" : " 下一页 ",
+                        "sLast" : " 最后一页 "
+                      }
+                    },
+    }).buttons().container();
     });
+
 </script>
 </body>
 </html>

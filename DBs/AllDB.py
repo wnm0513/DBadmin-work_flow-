@@ -120,10 +120,16 @@ def EditDB(dbname):
         # 修改数据库管理者
         if username:
             user1 = User.query.filter(User.name == username).first()
+            dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
+            userId = user1.id
+            dbid = dbid1.id
+            # 查看该数据库有没有管理员
+            dbuser = DbsUser.query.filter(DbsUser.dbid == dbid).first()
+            if dbuser:
+                # 如果有，就清除掉
+                db.session.delete(dbuser)
+
             if user1:
-                userId = user1.id
-                dbid1 = Dbs.query.filter(Dbs.name == name and Dbs.ip == ip).first()
-                dbid = dbid1.id
                 db_user = DbsUser(uid=userId, dbid=dbid)
                 try:
                     db.session.add(db_user)

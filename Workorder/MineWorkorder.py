@@ -105,7 +105,7 @@ def MineWorkorder():
             return render_template('workorder/MineWorkorder/MineWorkorder.html')
         # 下面是为了规范SQL，在goinception前做的预判定
         if not str(sqltext).replace('\r\n', '').replace('\n', '').strip().endswith(';'):
-            error = "SQL请以英文模式下的';'结尾"
+            error = "SQL请以select开头，并以英文模式下的';'结尾"
             flash(error)
             return render_template('workorder/MineWorkorder/MineWorkorder.html')
 

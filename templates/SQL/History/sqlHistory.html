@@ -36,36 +36,20 @@
                   <thead>
                   <tr>
                     <th>库名</th>
-                    <th>IP</th>
+                    <th>环境</th>
                     <th>执行的SQL</th>
                     <th>执行时间</th>
                     <th>执行者</th>
                   </tr>
                   </thead>
                     <tbody>
-                    {% for db in dbs %}
+                    {% for history in queryhistory %}
                     <tr>
-                        <td>{{ db['name'] }}</td>
-                        <td>{{ db['ip'] }}</td>
-                        <td>{{ db['port'] }}</td>
-
-                        {% if not db[5] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[5] }}</td>
-                        {% endif %}
-
-                        {% if not db[6] %}
-                        <td>尚未分配</td>
-                        {% else %}
-                        <td>{{ db[6] }}</td>
-                        {% endif %}
-
-                        <td>{{ db['note'] }}</td>
-                        <td>
-                        <a class="btn btn-info" href="{{ url_for('AllDB.EditDB', dbname=db['name']) }}">编辑</a>
-                        <a class="btn btn-danger" onclick="return confirm('Are you sure delete this db?');" href="{{ url_for('AllDB.delete', dbname=db['name']) }}">删除</a>
-                        </td>
+                        <td>{{ history['dbname'] }}</td>
+                        <td>{{ history['select_env'] }}</td>
+                        <td>{{ history['sqltext'] }}</td>
+                        <td>{{ history['create_time'] }}</td>
+                        <td>{{ history['name'] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

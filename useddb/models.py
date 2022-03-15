@@ -128,6 +128,7 @@ class DbsUser(db.Model):
         return '<DbsDept %r>' % self.id
 
 
+# 工单表
 class Workorder(db.Model):
     '''工作表'''
     __tablename__ = 'workorder'
@@ -145,11 +146,11 @@ class Workorder(db.Model):
         return '<Workorder %r>' % self.id
 
 
+# 流程表
 class WorkFlow(db.Model):
     '''工作表'''
     __tablename__ = 'workflow'
     # 使用下面的配置进行解决
-
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
     uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
@@ -163,6 +164,7 @@ class WorkFlow(db.Model):
         return '<WorkFlow %r>' % self.woid
 
 
+# goinception的记录表
 class InceptionRecords(db.Model):
     '''工作表'''
     __tablename__ = 'inception_records'
@@ -182,6 +184,7 @@ class InceptionRecords(db.Model):
         return '<InceptionRecords %r>' % self.id
 
 
+# goinception执行的记录表
 class InceptionRecordsExecute(db.Model):
     '''工作表'''
     __tablename__ = 'inception_records_execute'
@@ -200,3 +203,20 @@ class InceptionRecordsExecute(db.Model):
 
     def __repr__(self):
         return '<InceptionRecordsExecute %r>' % self.id
+
+
+# 查询历史表
+class QueryHistory(db.Model):
+    """
+    查询历史
+    """
+    __tablename__ = 'queryhistory'
+    # 使用下面的配置进行解决
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='操作人id')
+    name = db.Column(db.String(20), nullable=False, default='', )  # 操作人姓名
+    dbname = db.Column(db.String(20), nullable=False, default='', )  # 数据库名
+    sqltext = db.Column(db.String(5000), )  # comment='执行语句')
+    select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
+    host = db.Column(db.String(50), nullable=False)  # comment = '实例连接ip'
+    create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '执行时间'
