@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | General Form Elements</title>
+  <title>AddDB</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -71,7 +71,7 @@
                   </div>
                     <div class="form-group">
                   <label for="deptId">部门</label>
-                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;">
+                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;" required>
                     <option selected>--请选择部门--</option>
                       {% for dept in department %}
                     <option>{{ dept['deptname'] }}</option>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="form-group">
                   <label for="username">数据库管理者</label>
-                  <select id="username" name="username" class="select2" style="width: 100%;">
+                  <select id="username" name="username" class="select2" style="width: 100%;" required>
                     <option selected>--请选择人员--</option>
                       {% for user in users %}
                     <option>{{ user['name'] }}</option>

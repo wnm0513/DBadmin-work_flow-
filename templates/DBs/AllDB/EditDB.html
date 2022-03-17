@@ -58,30 +58,40 @@
                     <input type="text" class="form-control" name="name" id="name" value="{{ request.form['name'] or dbs['name'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="account">IP</label>
+                    <label for="ip">IP</label>
                     <input type="text" class="form-control" name="ip" id="ip" value="{{ request.form['ip'] or dbs['ip'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="dingding">端口</label>
+                    <label for="port">端口</label>
                     <input type="text" class="form-control" name="port" id="port" value="{{ request.form['port'] or dbs['port'] }}" required>
                   </div>
                     <div class="form-group">
-                    <label for="phone">备注</label>
+                    <label for="note">备注</label>
                     <input type="text" class="form-control" name="note" id="note" value="{{ request.form['note'] or dbs['note'] }}" required>
                   </div>
+
                   <div class="form-group">
-                  <label for="deptId">部门</label>
-                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;">
-                    <option selected>--请选择部门--</option>
+                  <label for="deptname">部门</label>
+                  <div class="row">
                       {% for dept in department %}
-                    <option>{{ dept['deptname'] }}</option>
+                    <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                    <input type="checkbox" name="deptId" id="db_dept{{ dept['deptname'] }}" value="{{ dept['id'] }}">
+                    <label for="db_dept{{ dept['deptname'] }}">{{ dept['deptname'] }}</label>
+                      </div>
+                  </div>
                       {% endfor %}
-                  </select>
+                  </div>
                 </div>
+
                 <div class="form-group">
                   <label for="username">数据库管理者</label>
                   <select id="username" name="username" class="select2" style="width: 100%;">
-                    <option selected>--请选择人员--</option>
+                  {% if dbuser %}
+                    <option selected>{{ request.form['username'] or dbuser['name'] }}</option>
+                      {% else %}
+                      <option selected>--请选择数据库管理者--</option>
+                  {% endif %}
                       {% for user in users %}
                     <option>{{ user['name'] }}</option>
                       {% endfor %}
@@ -102,11 +112,7 @@
           <div class="row-md-3" >
                 <div class="card card-primary card-outline">
                     <div class="card-header">
-                        {% if message == 'registered successfully.' %}
                       <div class="pace-flash-primary"><span class="float-right text-md-center text-success">{{ message }}</span></div>
-                        {% else %}
-                        <div class="pace-flash-primary"><span class="float-right text-md-center text-danger">{{ message }}</span></div>
-                       {% endif %}
                         </div>
                 </div>
           </div>
@@ -139,10 +145,13 @@
       $('.select2').select2()
     });
 
-$$("[type=checkbox]").click(function () {
+    {% for dbdept in dbdeptlist %}
+$("#db_dept{{ dbdept['deptname'] }}").attr("checked", "checked");
+    {% endfor %}
+
+$("[type=checkbox]").click(function () {
 	alert($(this).is(":checked"))
 })
-
 
 </script>
 </body>

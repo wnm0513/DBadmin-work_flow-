@@ -4,11 +4,12 @@ from flask import Flask
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from sqlalchemy import and_
 
 import useddb
 import pymysql
 from flask_login import current_user
-from useddb.models import db, User
+from useddb.models import db, User, Workorder
 from config import Config
 
 app = Flask(__name__)
@@ -44,6 +45,17 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = User.query.filter(User.id == user_id).first()
+        # 查询工单，并以权限分类用户能看到的正在进行的工单
+        if g.user.is_super():
+            workorders = Workorder.query.filter(Workorder.status == 0).all()
+        elif g.user.is_manager():
+            workorders = db.session.query(Workorder).filter(
+                and_(Workorder.deptid == g.user.deptId, Workorder.status == 0)).all()
+        else:
+            workorders = db.session.query(Workorder).filter(
+                and_(Workorder.uid == g.user.id, Workorder.status == 0)).all()
+
+        g.order_count = len(workorders)
 
 
 @app.route('/index')

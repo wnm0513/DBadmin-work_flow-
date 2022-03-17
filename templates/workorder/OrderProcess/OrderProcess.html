@@ -146,7 +146,7 @@
                       </td>
                       {% endif %}
 
-                      {% if workorderinfo['auditing'] == 1 %}
+                      {% if workorderinfo['auditing'] == 1 and workorderinfo['nowstep'] == 3 %}
                       <td class="text-center">
                           <span class="badge badge-success">已同意</span>
                       </td>
@@ -157,7 +157,7 @@
                           <a class="btn btn-success btn-sm" onclick="return confirm('确定执行此工单吗？');" href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
                               执行
                           </a>
-                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorderinfo['id']) }}">
                               取消
                           </a>
                       </td>

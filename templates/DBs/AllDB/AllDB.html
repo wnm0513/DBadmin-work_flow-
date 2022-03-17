@@ -65,22 +65,26 @@
                   </tr>
                   </thead>
                     <tbody>
-                    {% for db in dbs %}
+                    {% for db in dbs_info %}
                     <tr>
                         <td>{{ db['name'] }}</td>
                         <td>{{ db['ip'] }}</td>
                         <td>{{ db['port'] }}</td>
 
-                        {% if not db[5] %}
+                        {% if not db['dbdepts'] %}
                         <td>尚未分配</td>
                         {% else %}
-                        <td>{{ db[5] }}</td>
+                        <td>
+                         {% for dept in db['dbdepts'] %}
+                        {{ dept['name'] }}
+                          {% endfor %}
+                        </td>
                         {% endif %}
 
-                        {% if not db[6] %}
+                        {% if not db['dbuser'] %}
                         <td>尚未分配</td>
                         {% else %}
-                        <td>{{ db[6] }}</td>
+                        <td>{{ db['dbuser']['name'] }}</td>
                         {% endif %}
 
                         <td>{{ db['note'] }}</td>

@@ -1,11 +1,13 @@
 import datetime
 
+import pymysql
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from sqlalchemy import and_
 
 from app import login_required
+from config import Config
 from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords
 from . import OrderHistories
 from .MineWorkorder import path
@@ -69,3 +71,17 @@ def OrderHistory():
         workordersinfo.append(workorderinfo)
 
     return render_template('workorder/OrderHistory/OrderHistory.html', workordersinfo=workordersinfo)
+
+
+@OrderHistories.route('/rollback')
+@login_required
+def rollback():
+    # 在备份库中取出opid_time的值
+    conn_backup_db = pymysql.connect(
+        host=Config.INCEPTION_BACKUP_HOST,
+        port=int(Config.INCEPTION_BACKUP_PORT),
+        user=Config.INCEPTION_BACKUP_USER,
+        password=Config.INCEPTION_BACKUP_PASSWORD)
+
+    # 初始化备份数据库的游标
+    cur = conn_backup_db.cursor()

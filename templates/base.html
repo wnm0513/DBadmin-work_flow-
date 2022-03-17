@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FlaskTest</title>
+  <title>DBAdmin_Dev</title>
+  <link rel="shortcut icon" href="../static/img/favicon.ico" type="image/x-icon">
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -49,24 +50,28 @@
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
-          <span class="badge badge-warning navbar-badge">15</span>
+          <span class="badge badge-warning navbar-badge">{{ g.order_count }}</span>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <span class="dropdown-item dropdown-header">15 Notifications</span>
+          <span class="dropdown-item dropdown-header">个人信息</span>
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item">
-            <i class="fas fa-envelope mr-2"></i> 4 new messages
-            <span class="float-right text-muted text-sm">3 mins</span>
+            <i class="fas fa-clock mr-2"></i> 上次登录：
+            <span class="float-right text-muted text-sm">{{ g.user.last_login}}</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ url_for('OrderProcess.OrderProcess') }}" class="dropdown-item">
+            <i class="fas fa-file-alt mr-2"></i> 待处理的工单：
+              {% if g.order_count %}
+            <span class="float-right text-muted text-sm">{{ g.order_count }}</span>
+                  {% else %}
+                  <span class="float-right text-muted text-sm">无</span>
+               {% endif %}
           </a>
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item">
-            <i class="fas fa-users mr-2"></i> 8 friend requests
-            <span class="float-right text-muted text-sm">12 hours</span>
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">
-            <i class="fas fa-file mr-2"></i> 3 new reports
-            <span class="float-right text-muted text-sm">2 days</span>
+            <i class="fas fa-cog mr-2"></i>修改个人信息
+            <span class="float-right text-muted text-sm">{{ g.user.utime}}</span>
           </a>
           <div class="dropdown-divider"></div>
           <a onclick="window.top.location='{{ url_for('login.logout')}}'" class="dropdown-item dropdown-footer">退出登录</a>
@@ -88,24 +93,16 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="../static/img/lADPDgQ9zr6tZXrNAyrNAhw_540_810.jpg" class="img-circle elevation-2" alt="User Image">
+        {% if g.user.profile == '#' %}
+          <img src="../static/img/page1_2.png" class="img-bordered-sm elevation-2" alt="User Image">
+        {% else %}
+          <img src="../static/img/userprofile/{{ g.user.profile}}" class="img-bordered-sm elevation-2" alt="User Image">
+        {% endif %}
         </div>
         <div class="info">
 
           <li href="#" class="d-block">{{ g.user['name'] }}</li>
 
-        </div>
-      </div>
-
-      <!-- SidebarSearch Form -->
-      <div class="form-inline">
-        <div class="input-group" data-widget="sidebar-search">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-          <div class="input-group-append">
-            <button class="btn btn-sidebar">
-              <i class="fas fa-search fa-fw"></i>
-            </button>
-          </div>
         </div>
       </div>
 

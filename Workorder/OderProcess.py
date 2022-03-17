@@ -1,9 +1,9 @@
 import datetime
 
+import pymysql
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-
 
 from sqlalchemy import and_
 
@@ -26,10 +26,12 @@ def OrderProcess():
     if g.user.is_super():
         workorders = Workorder.query.filter(Workorder.status == 0).all()
     elif g.user.is_manager():
-        workorders = db.session.query(Workorder).filter(and_(Workorder.deptid == g.user.deptId, Workorder.status == 0)).all()
+        workorders = db.session.query(Workorder).filter(
+            and_(Workorder.deptid == g.user.deptId, Workorder.status == 0)).all()
     else:
         workorders = db.session.query(Workorder).filter(and_(Workorder.uid == g.user.id, Workorder.status == 0)).all()
 
+    g.order_count = len(workorders)
     for workorder in workorders:
         deptname = db.session.query(Departments.deptname).filter(Departments.id == workorder.deptid)
         workflow = WorkFlow.query.filter(WorkFlow.woid == workorder.id).first()
@@ -100,18 +102,15 @@ def OrderDetail(id):
 def agree(woid):
     workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
 
-
-    # 已提交
+    # 经理审核
     if workflow.nowstep == 1:
         workflow.nowstep = 2
 
-    # 经理审核
+    # DBA审核
     elif workflow.nowstep == 2:
         workflow.nowstep = 3
-
-    # DBA审核
-    elif workflow.nowstep == workflow.maxstep:
-        workflow.auditing = 1
+        if workflow.nowstep == workflow.maxstep:
+            workflow.auditing = 1
 
     # 提交
     try:
@@ -149,7 +148,7 @@ def execute(woid):
             # 记录执行结果
             executedsql = InceptionRecordsExecute(woid=woid, sequence=sqlresult[7], exetime=datetime.datetime.now(),
                                                   sqltext=sqlresult[5], affrows=sqlresult[6], executetime=sqlresult[9],
-                                                  exstatus=sqlresult[3], extype=1, opid_time=sqlresult[11],
+                                                  exstatus=sqlresult[3], extype=1, opid_time=sqlresult[7],
                                                   backup_dbname=sqlresult[8])
 
             # 提交
@@ -191,6 +190,21 @@ def refused(woid):
     # 提交
     try:
         db.session.add(workorder, workflow)
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderProcess.OrderProcess'))
+
+
+## 取消 ##
+@OrderProcesses.route('/canncel/<woid>/', methods=['GET', 'POST'])
+@login_required
+def cancel(woid):
+    try:
+        db.session.query(Workorder).filter(Workorder.id == woid).delete()
+        db.session.query(WorkFlow).filter(WorkFlow.woid == woid).delete()
         db.session.commit()
     except Exception as e:
         error = str(e)

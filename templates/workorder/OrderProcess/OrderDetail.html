@@ -106,7 +106,9 @@
 
                    {% if g.user.id == workorder.uid %}
                        <div class="col-1">
-                     <input type="submit" class="btn btn-danger btn-sm" value="取消工单">
+                     <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorderinfo['id']) }}">
+                              取消
+                          </a>
                        </div>
                    {% endif %}
                    </div>

@@ -48,3 +48,9 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login.login'))
+
+
+@Login.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+
+    render_template('Login/reset_password.html')
