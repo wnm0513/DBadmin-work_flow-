@@ -8,7 +8,7 @@ from sqlalchemy import and_
 
 from app import login_required
 from config import Config
-from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords
+from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack
 from . import OrderHistories
 from .MineWorkorder import path
 
@@ -52,6 +52,7 @@ def OrderHistory():
                 'sqltext': executedsql.sqltext,
                 'affrows': executedsql.affrows,
                 'executetime': executedsql.executetime,
+                'opid_time': executedsql.sequence,
                 'exstatus': executedsql.exstatus
             }
             executedsqlsinfo.append(executedsqlinfo)
@@ -73,9 +74,11 @@ def OrderHistory():
     return render_template('workorder/OrderHistory/OrderHistory.html', workordersinfo=workordersinfo)
 
 
-@OrderHistories.route('/rollback')
+@OrderHistories.route('/rollback/<woid>')
 @login_required
-def rollback():
+def rollback(woid):
+    # 此段分别用两个账号操作数据库，一个在备份实例，一个在目标实例
+    inception_executeds = db.session.query(InceptionRecordsExecute).filter(InceptionRecordsExecute.woid == woid).all()
     # 在备份库中取出opid_time的值
     conn_backup_db = pymysql.connect(
         host=Config.INCEPTION_BACKUP_HOST,
@@ -85,3 +88,61 @@ def rollback():
 
     # 初始化备份数据库的游标
     cur = conn_backup_db.cursor()
+    # 将回滚信息写入回滚表
+    for inception_executed in inception_executeds:
+        rollback_opidtime = inception_executed.sequence
+        rollback_dbname = inception_executed.backup_dbname
+
+        # 数据库交互查询回滚语句
+        s_host = "select host from "
+        s_table = "select tablename from "
+        s_sql = "select rollback_statement from "
+        table = ".$_$Inception_backup_information$_$ "
+        condition = " where  opid_time='{opid_time}';".format(opid_time=rollback_opidtime)
+        rollbackhost = s_host + rollback_dbname + table + condition
+        cur.execute(rollbackhost)
+        host = cur.fetchall()
+        rollback_host = host[0][0]
+
+        rollbacktbname = s_table + rollback_dbname + table + condition
+        cur.execute(rollbacktbname)
+        tbname = cur.fetchall()
+        rollback_tbname = tbname[0][0]
+
+        if rollback_tbname:
+            rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
+            cur.execute(rollbackstatement)
+            rollback_sql = cur.fetchall()
+        else:
+            rollback_sql = "查询回滚语句出错，请联系DBA处理！;"
+
+        rollback_info = RollBack(woid=woid, opid_time=rollback_opidtime, sqltext=rollback_sql,
+                                 tablename=rollback_tbname, dbname=rollback_dbname, host=rollback_host,
+                                 create_time=datetime.datetime.now())
+        db.session.add(rollback_info)
+        db.session.commit()
+
+    conn_backup_db.close()
+    cur.close()
+
+    rollback_all = RollBack.query.filter_by(woid=woid).all()
+    for rollback_one in rollback_all:
+        rollbacksql = rollback_one.sqltext
+
+        # 执行回滚语句
+        conn_rollback = pymysql.connect(
+            host=rollback_one.host,
+            port=int(Config.PORT),
+            user=Config.MYSQLUSER,
+            password=Config.MYSQLPASSWORD
+        )
+        # 初始化游标
+        cur_execute = conn_rollback.cursor()
+        # 执行
+        cur_execute.execute(rollbacksql)
+
+    workorder = Workorder.query.filter_by(id=woid).first()
+    # 将工单状态调整为已回滚
+    workorder.status = 3
+
+    return redirect(url_for('OrderHistory.OrderHistory'))

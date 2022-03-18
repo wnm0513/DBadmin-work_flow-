@@ -50,7 +50,11 @@
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
+            {% if g.order_count %}
           <span class="badge badge-warning navbar-badge">{{ g.order_count }}</span>
+            {% else %}
+          <span class="badge badge-warning navbar-badge"></span>
+            {% endif %}
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <span class="dropdown-item dropdown-header">个人信息</span>
@@ -71,6 +75,7 @@
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item">
             <i class="fas fa-cog mr-2"></i>修改个人信息
+              <span class="float-right text-muted text-sm">上次修改时间：</span>
             <span class="float-right text-muted text-sm">{{ g.user.utime}}</span>
           </a>
           <div class="dropdown-divider"></div>

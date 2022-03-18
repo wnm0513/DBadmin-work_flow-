@@ -18,9 +18,9 @@ class Config(object):
     INCEPTION_USER = 'goinception'
     INCEPTION_PASSWORD = 'Mysql$123'
     # goinception备份信息
-    INCEPTION_BACKUP_HOST = '127.0.0.1'
+    INCEPTION_BACKUP_HOST = '192.168.201.15'
     INCEPTION_BACKUP_PORT = '3306'
-    INCEPTION_BACKUP_USER = 'goinception'
+    INCEPTION_BACKUP_USER = 'dbadmin'
     INCEPTION_BACKUP_PASSWORD = 'Mysql$123'
     # 文件路径
     INCEPTION_PATH = os.path.join(basedir, 'File')

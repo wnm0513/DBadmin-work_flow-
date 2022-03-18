@@ -161,6 +161,7 @@ def execute(woid):
 
     # 表示工单已通过
     workorder.status = 1
+    workorder.etime = datetime.datetime.now()
 
     # 提交
     try:
