@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+  <!-- datetime picker -->
+  <link rel="stylesheet" type="text/css" href="../../../static/AdminLTE-3.1.0/plugins/datetimepicker/jquery.datetimepicker.css">
 </head>
 <body class="hold-transition sidebar-mini dark-mode">
 <!-- Site wrapper -->
@@ -31,6 +33,27 @@
             </ol>
           </div>
         </div>
+          <div class="row">
+              <div class="col-sm-6">
+                <div id="search">
+                <form method="post" autocomplete="off">
+                    <div class="row">
+                    <div>
+                        <input type="text" class="col-10 form-control form-control-sm" name="start_time" id="start_time" placeholder="从..时间" required/>
+                    </div>
+
+                    <div >
+                        <input type="text" class="col-10 form-control form-control-sm" name="end_time" id="end_time" placeholder="到..时间" required/>
+                    </div>
+
+                    <div>
+                        <input type="submit" class="btn btn-success btn-sm" value="查询"/>
+                    </div>
+                 </div>
+                </form>
+            </div>
+            </div>
+            </div>
       </div><!-- /.container-fluid -->
     </section>
 
@@ -48,6 +71,7 @@
               <i class="fas fa-minus"></i>
             </button>
           </div>
+
         </div>
 
           <div class="card-body p-0">
@@ -90,7 +114,7 @@
                           #
                       </td>
                       <td style="width: 20%" class="text-center">
-                          Created At {{ workorderinfo['stime'] }}
+                          Created At {{ workorderinfo['etime'] }}
                       </td>
                       <td style="width: 10%" class="text-center">
                           {{ workorderinfo['uname'] }}
@@ -165,7 +189,7 @@
                           #
                       </td>
                       <td style="width: 20%" class="text-center">
-                          Created At {{ workorderinfo['stime'] }}
+                          Created At {{ workorderinfo['etime'] }}
                       </td>
                       <td style = "width: 10%" class ="text-center">
                           {{ workorderinfo['uname'] }}
@@ -235,7 +259,7 @@
                           #
                       </td>
                       <td style = "width: 20%" class="text-center">
-                          Created At {{ workorderinfo['stime'] }}
+                          Created At {{ workorderinfo['etime'] }}
                       </td>
                       <td style = "width: 10%" class ="text-center">
                           {{ workorderinfo['uname'] }}
@@ -314,5 +338,16 @@
 <script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<!-- datetime picker -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/datetimepicker/jquery.js"></script>
+<script src="../../../static/AdminLTE-3.1.0/plugins/datetimepicker/jquery.datetimepicker.full.min.js"></script>
+<script>
+    $('#start_time').datetimepicker({
+        format:'Y-m-d H:i:s'
+    });
+    $('#end_time').datetimepicker({
+        format:'Y-m-d H:i:s'
+    });
+</script>
 </body>
 </html>

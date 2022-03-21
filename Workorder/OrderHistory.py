@@ -4,16 +4,17 @@ import pymysql
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from sqlalchemy import and_
+from sqlalchemy import and_, between, text
 
 from app import login_required
 from config import Config
+from useddb import models
 from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack
 from . import OrderHistories
 from .MineWorkorder import path
 
 
-@OrderHistories.route('/OrderHistories')
+@OrderHistories.route('/OrderHistories', methods=['GET', 'POST'])
 @login_required
 def OrderHistory():
     # 定义列表
@@ -21,11 +22,30 @@ def OrderHistory():
 
     # 查询工单，并以权限分类用户能看到的正在进行的工单
     if g.user.is_super():
-        workorders = Workorder.query.all()
+        workorders = Workorder.query.order_by(text('-etime')).all()
     elif g.user.is_manager():
-        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId).all()
+        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId)\
+            .order_by(text('-etime')).all()
     else:
-        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id).all()
+        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id)\
+            .order_by(text('-etime')).all()
+
+    # 如果选择了时间区间
+    if request.method == 'POST':
+        start_time = request.form.get('start_time')
+        end_time = request.form.get('end_time')
+
+        if g.user.is_super():
+            workorders = db.session.query(Workorder)\
+                .filter(Workorder.etime.between(start_time, end_time)).order_by(text('-etime')).all()
+        elif g.user.is_manager():
+            workorders = db.session.query(Workorder)\
+                .filter(and_(Workorder.deptid == g.user.deptId, Workorder.etime.between(start_time, end_time)))\
+                .order_by(text('-etime')).all()
+        else:
+            workorders = db.session.query(Workorder)\
+                .filter(and_(Workorder.uid == g.user.id, Workorder.etime.between(start_time, end_time)))\
+                .order_by(text('-etime')).all()
 
     for workorder in workorders:
         dept = db.session.query(Departments).filter(Departments.id == workorder.deptid).first()
@@ -61,7 +81,7 @@ def OrderHistory():
             'id': workorder.id,
             'uname': workflow.uname,
             'deptname': dept.deptname,
-            'stime': workorder.stime,
+            'etime': workorder.etime,
             'type': workorder.applyreason,
             'nowstep': workflow.nowstep,
             'auditing': workflow.auditing,

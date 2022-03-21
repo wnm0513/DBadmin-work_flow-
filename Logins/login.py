@@ -52,5 +52,41 @@ def logout():
 
 @Login.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
+    if request.method == 'POST':
+        account = request.form.get('account')
+        password = request.form.get('password')
+        password_again = request.form.get('password_again')
+        code = request.form.get('code')
+        m1 = hashlib.md5()
+        m1.update(password.encode("utf8"))
+        pwd_md5 = m1.hexdigest()
+        if password != password_again:
+            error = '两次输入的密码不一致，请确认'
+            flash(error)
+            return render_template('Login/reset_password.html')
 
-    render_template('Login/reset_password.html')
+        user = User.query.filter(User.account == account).first()
+        if user:
+            if user.status == 0:
+                error = '账号未被启用，请联系管理员进行激活'
+
+            elif code == 'banksteel':
+                # 记录登录时间
+                user.utime = datetime.datetime.now()
+                user.passwd = pwd_md5
+                db.session.add(user)
+                db.session.commit()
+                # 取出用户id作为全局变量
+                session.clear()
+                session['user_id'] = user.id
+                return redirect(url_for('login.login'))
+
+            else:
+                error = '验证错误，请确认后再修改'
+
+        else:
+            error = '账号错误，请确认'
+
+        flash(error)
+
+    return render_template('Login/reset_password.html')
