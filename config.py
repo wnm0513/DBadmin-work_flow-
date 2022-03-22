@@ -24,4 +24,6 @@ class Config(object):
     INCEPTION_BACKUP_PASSWORD = 'Mysql$123'
     # 文件路径
     INCEPTION_PATH = os.path.join(basedir, 'File')
-    INCEPTION_WPATH = os.path.join(basedir, 'WorkOrder')
+    INCEPTION_UPATH = os.path.join(basedir, 'static\\img\\userprofile\\')
+    # 上传文件限制
+    UPLOADED_PROFILE_ALLOW = ['png', 'jpg', 'jpeg']

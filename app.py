@@ -70,6 +70,12 @@ from Logins.login import Login
 
 app.register_blueprint(Login, url_prefix='/')
 
+## 首页 ##
+# 修改用户信息
+from index.AlterUser import Index_AlterUser
+
+app.register_blueprint(Index_AlterUser, url_prefix='/AlterUserinfo')
+
 ## 工单管理 ##
 # 我的工单
 from Workorder.MineWorkorder import MineWorkorders

@@ -117,7 +117,8 @@ def UserEdit(account):
             db.session.rollback()
             db.session.flush()
             flash(e)
-            return redirect(url_for('AllUser.Alluser'))
+
+        return redirect(url_for('AllUser.Alluser'))
 
     return render_template('Usermanage/AllUser/UserEdit.html', user=user)
 

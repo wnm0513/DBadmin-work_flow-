@@ -71,7 +71,7 @@ def reset_password():
                 error = '账号未被启用，请联系管理员进行激活'
 
             elif code == 'banksteel':
-                # 记录登录时间
+                # 记录修改时间
                 user.utime = datetime.datetime.now()
                 user.passwd = pwd_md5
                 db.session.add(user)
