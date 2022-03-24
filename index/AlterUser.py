@@ -52,7 +52,7 @@ def AlterUserinfo():
 @login_required
 def AlterUserprofile():
     # 获取用户信息
-    global re_filename
+    re_filename = None
     user = User.query.filter_by(account=g.user.account).first()
     if request.method == 'POST':
         user_profile = request.files.get('user_profile')
@@ -61,7 +61,8 @@ def AlterUserprofile():
             os.makedirs(path)
 
         # 检测文件格式
-        if user_profile and '.' in user_profile.filename and user_profile.filename.split('.')[-1] in Config.UPLOADED_PROFILE_ALLOW:
+        if user_profile and '.' in user_profile.filename and user_profile.filename.split('.')[
+            -1] in Config.UPLOADED_PROFILE_ALLOW:
             # 存储图片文件
             # 获取当前时间戳（毫秒）
             current_time = int(round(time.time() * 1000))
@@ -80,11 +81,9 @@ def AlterUserprofile():
                 db.session.rollback()
                 db.session.flush()
                 error = str(e)
-                flash(error)
 
         else:
             error = '文件名不合法,请上传jpg、png、jpeg图片'
-            flash(error)
 
         flash(error)
 

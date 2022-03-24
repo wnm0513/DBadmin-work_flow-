@@ -139,10 +139,10 @@ def execute(woid):
     dbnamelist = allsqls.pop().split()
     filecontent.close()
 
-    for allsql in allsqls:
+    for num in range(len(dbnamelist)):
 
         # 执行
-        sqlresults = goinceptionExecute(allsql)
+        sqlresults = goinceptionExecute(dbnamelist[num], allsqls[num])
 
         for sqlresult in sqlresults:
             # 记录执行结果

@@ -81,11 +81,12 @@ def AddDept():
                 error = 'Add Department successfully.'
             except Exception as e:
                 error = str(e)
-
+        # 选择部门经理时做的判断，如果不是就先更改再关联部门
         if user.ismanager == 0:
             dept2 = Departments.query.filter(Departments.deptname == deptname).first()
             user.ismanager = 1
             user.deptId = dept2.id
+        # 如果是就直接关联部门
         else:
             dept2 = Departments.query.filter(Departments.deptname == deptname).first()
             user.deptId = dept2.id

@@ -7,8 +7,8 @@ class Config(object):
     SECRET_KEY = 'dev'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://flask:Mysql$123@192.168.201.15/flask?charset=utf8"
-    MYSQLUSER = 'root'
-    MYSQLPASSWORD = 'Mysql@123'
+    MYSQLUSER = 'dbadmin'
+    MYSQLPASSWORD = 'Mysql$123'
     DB = 'flask'
     IP = '192.168.201.15'
     PORT = '3306'
@@ -20,10 +20,12 @@ class Config(object):
     # goinception备份信息
     INCEPTION_BACKUP_HOST = '192.168.201.15'
     INCEPTION_BACKUP_PORT = '3306'
-    INCEPTION_BACKUP_USER = 'dbadmin'
+    INCEPTION_BACKUP_USER = 'dbadmin_backup'
     INCEPTION_BACKUP_PASSWORD = 'Mysql$123'
     # 文件路径
     INCEPTION_PATH = os.path.join(basedir, 'File')
     INCEPTION_UPATH = os.path.join(basedir, 'static\\img\\userprofile\\')
     # 上传文件限制
     UPLOADED_PROFILE_ALLOW = ['png', 'jpg', 'jpeg']
+    # 网站ip
+    WEB_IP = '192.168.254.39:2022'

@@ -56,15 +56,15 @@ def get_token():
 
 
 def send_dingding(msg, receiveuser):
-    ##钉钉发消息##
+    ## 钉钉发消息 ##
     access_token = get_token()
     msg_type = 'text'
     url = "https://oapi.dingtalk.com/message/send?access_token=%s" % access_token
     to_users = '|'.join(receiveuser)
-    body_dict = {"touser": to_users, "agentid": 286875730, "msgtype": msg_type, msg_type: {"content": msg}}
+    body_dict = {"touser": to_users, "agentid": 204030964, "msgtype": msg_type, msg_type: {"content": msg}}
     body = json.dumps(body_dict)
     headers = {'Content-Type': 'application/json; charset=utf-8'}
-    requests = request.Request(url=url, headers=headers, data=body)
+    requests = request.Request(url=url, headers=headers, data=bytes(body))
     response = request.urlopen(requests)
     resp = response.read()
     return_json = json.loads(resp)
@@ -76,3 +76,4 @@ def send_dingding(msg, receiveuser):
         error_msg = "===*=发送审批消息失败\n===*=消息内容\n\n{msg}\n\n===*=时间：{time}".format(msg=msg,
                                                                                  time=datetime.datetime.now().strftime(
                                                                                      '%Y-%m-%d %H:%M:%S'))
+        return error_msg

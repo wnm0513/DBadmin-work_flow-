@@ -9,16 +9,20 @@ from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app
 )
 from flask_login import current_user
+from sqlalchemy import and_
 
 from app import login_required
 from config import Config
 from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow, DbsDept, Departments
-from . import MineWorkorders
+from . import MineWorkorders, send_dingding
 
 path = Config.INCEPTION_PATH
 
 
-def goinceptionCheck(sqltext):
+def goinceptionCheck(dbname, sqltext):
+    # 根据数据库来查ip
+    host_IP = Dbs.query.filter(Dbs.name == dbname).first()
+
     # 接下来是连接goinception来进行SQL语法判定
     conn_goinception = pymysql.connect(
         host=Config.INCEPTION_HOST,
@@ -37,7 +41,7 @@ def goinceptionCheck(sqltext):
     # 开始，获取连接信息
     prefix_format_check = "/*--user={};--password={};--host={};--port={};--enable-check;*/ " \
                               .format(Config.MYSQLUSER, Config.MYSQLPASSWORD,
-                                      Config.IP, int(Config.PORT)) + '\n' \
+                                      host_IP.ip, int(Config.PORT)) + '\n' \
                           + "inception_magic_start;\n"
 
     # 拼接语法
@@ -51,7 +55,10 @@ def goinceptionCheck(sqltext):
     return sqlresults
 
 
-def goinceptionExecute(sqltext):
+def goinceptionExecute(dbname, sqltext):
+    # 根据数据库来查ip
+    host_IP = Dbs.query.filter(Dbs.name == dbname).first()
+
     # 接下来是连接goinception来进行SQL语法判定
     conn_goinception = pymysql.connect(
         host=Config.INCEPTION_HOST,
@@ -70,7 +77,7 @@ def goinceptionExecute(sqltext):
     # 开始，获取连接信息
     prefix_format_check = "/*--user={};--password={};--host={};--port={};--execute=1;--backup=1;*/ " \
                               .format(Config.MYSQLUSER, Config.MYSQLPASSWORD,
-                                      Config.IP, int(Config.PORT)) + '\n' \
+                                      host_IP.ip, int(Config.PORT)) + '\n' \
                           + "inception_magic_start;\n"
 
     # 拼接语法
@@ -105,7 +112,7 @@ def MineWorkorder():
             return render_template('workorder/MineWorkorder/MineWorkorder.html')
         # 下面是为了规范SQL，在goinception前做的预判定
         if not str(sqltext).replace('\r\n', '').replace('\n', '').strip().endswith(';'):
-            error = "SQL请以select开头，并以英文模式下的';'结尾"
+            error = "以英文模式下的';'结尾"
             flash(error)
             return render_template('workorder/MineWorkorder/MineWorkorder.html')
 
@@ -265,33 +272,44 @@ def MineWorkorder():
             flash(error)
             return render_template('workorder/MineWorkorder/MineWorkorder.html')
 
-        # 调用goinceptioncheck获取check结果
-        sqlresults = goinceptionCheck(sqltext)
-
         # 计算有多少句SQL
         count = sqltext.count(';')
 
-        for sqlresult in sqlresults:
+        # 读取文件
+        filecontent = open('{path}/{day}/{filename}'.format(path=path, day=current_day, filename=filename),
+                           'r')
+        allsqls = filecontent.readlines()
+        # 将最后一行的dbname取出来
+        dbnamelist = allsqls.pop().split()
+        filecontent.close()
 
-            # 获取本次检查成功的SQL语句数量
-            if sqlresult[2] == 0:
-                success_status = 1
-            else:
-                success_status = 0
+        for num in range(len(dbnamelist)):
 
-            execute_status = 0
-            goinception_record = InceptionRecords(uid=g.user.id, sqltext=sqlresult[5], filename=filename, sqlnums=count,
-                                                  success_status=success_status,
-                                                  applydate=current_day, applytime=datetime.datetime.now(),
-                                                  lastupdatetime=datetime.datetime.now(),
-                                                  execute_status=execute_status)
+            # 调用goinceptioncheck获取check结果
+            sqlresults = goinceptionCheck(dbnamelist[num], allsqls[num])
 
-            try:
-                db.session.add(goinception_record)
-                db.session.commit()
-            except Exception as e:
-                error = str(e)
-                flash(error)
+            for sqlresult in sqlresults:
+
+                # 获取本次检查成功的SQL语句数量
+                if sqlresult[2] == 0:
+                    success_status = 1
+                else:
+                    success_status = 0
+
+                execute_status = 0
+                goinception_record = InceptionRecords(uid=g.user.id, sqltext=sqlresult[5], filename=filename,
+                                                      sqlnums=count,
+                                                      success_status=success_status,
+                                                      applydate=current_day, applytime=datetime.datetime.now(),
+                                                      lastupdatetime=datetime.datetime.now(),
+                                                      execute_status=execute_status)
+
+                try:
+                    db.session.add(goinception_record)
+                    db.session.commit()
+                except Exception as e:
+                    error = str(e)
+                    flash(error)
 
             newrecordinfo = {
                 'type_id': type_id,
@@ -331,9 +349,9 @@ def OrderCheck(newrecordsjson):
     dbnamelist = allsqls.pop().split()
     filecontent.close()
 
-    for allsql in allsqls:
+    for num in range(len(dbnamelist)):
 
-        sqlresults = goinceptionCheck(allsql)
+        sqlresults = goinceptionCheck(dbnamelist[num], allsqls[num])
 
         for sqlresult in sqlresults:
             # 整合check结果
@@ -351,7 +369,8 @@ def OrderCheck(newrecordsjson):
 
     # 当别的视图请求时
     if request.method == 'GET':
-        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id, filename=filename)
+        return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id,
+                               filename=filename)
 
     # 当提交表单时
     if request.method == 'POST':

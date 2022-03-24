@@ -14,6 +14,8 @@ def login():
     if request.method == 'POST':
         account = request.form.get('account')
         password = request.form.get('password')
+        remember = request.form.get('remember')
+
         m1 = hashlib.md5()
         m1.update(password.encode("utf8"))
         pwd_md5 = m1.hexdigest()
@@ -29,9 +31,14 @@ def login():
                 db.session.add(user)
                 db.session.commit()
                 # 取出用户id作为全局变量
-                session.clear()
-                session['user_id'] = user.id
-                return redirect(url_for('index'))
+                if remember == '1':
+                    session.permanent = True
+                    session['user_id'] = user.id
+                    return redirect(url_for('index'))
+                else:
+                    session.clear()
+                    session['user_id'] = user.id
+                    return redirect(url_for('index'))
 
             else:
                 error = '密码错误，请确认后再登录'

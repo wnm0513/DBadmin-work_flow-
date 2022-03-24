@@ -46,16 +46,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <input type="checkbox" id="remember">
-              <label for="remember">
-                Remember Me
-              </label>
-            </div>
-          </div>
-          <!-- /.col -->
-          <div class="col-4">
+          <div class="col-md-6 offset-md-3">
             <input type="submit" class="btn btn-primary btn-block" value="登录">
           </div>
           <!-- /.col -->
@@ -81,5 +72,10 @@
 <script src="../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<script>
+    $("[type=checkbox]").click(function () {
+	alert($(this).is(":checked"))
+})
+</script>
 </body>
 </html>
