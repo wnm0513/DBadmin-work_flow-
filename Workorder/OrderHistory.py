@@ -98,8 +98,9 @@ def OrderHistory():
 @login_required
 def rollback(woid):
     # 此段分别用两个账号操作数据库，一个在备份实例，一个在目标实例
+    # 这里查询inception执行过的SQL记录表
     inception_executeds = db.session.query(InceptionRecordsExecute).filter(InceptionRecordsExecute.woid == woid).all()
-    # 在备份库中取出opid_time的值
+    # 取出opid_time的值
     conn_backup_db = pymysql.connect(
         host=Config.INCEPTION_BACKUP_HOST,
         port=int(Config.INCEPTION_BACKUP_PORT),
@@ -164,5 +165,8 @@ def rollback(woid):
     workorder = Workorder.query.filter_by(id=woid).first()
     # 将工单状态调整为已回滚
     workorder.status = 3
+    
+    db.session.add(workorder)
+    db.session.commit()
 
     return redirect(url_for('OrderHistory.OrderHistory'))

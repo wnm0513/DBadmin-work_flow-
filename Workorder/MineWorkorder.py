@@ -250,8 +250,9 @@ def MineWorkorder():
 
         try:
             uid = g.user.id
-            file_path = '{path}/{current_day}/$_{uid}_{time}_$.sql'.format(path=path, uid=uid, time=current_time,
-                                                                           current_day=current_day)
+            file_path = '{path}/{current_day}/$_{uid}_{daytime}_$.sql'.format(path=path, uid=uid,
+                                                                              daytime=current_day+str(current_time),
+                                                                              current_day=current_day)
             wfile = open('{file_path}'.format(file_path=file_path), 'a+')
             # 将用户输入循环写入文件保存，以便后续分析和使用
             for sql in sqllist:
