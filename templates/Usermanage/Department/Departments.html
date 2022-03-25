@@ -52,17 +52,17 @@
             <div class="card">
               <div class="card-header">
                 <h1 class="card-title">{{ deptusers['name'] }}</h1>
+
+                  {% if g.user['issuper'] == 1 %}
                   <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                     <i class="fas fa-minus"></i>
                   </button>
-                      {% if g.user['issuper'] == 1 %}
-                  <button type="button" class="btn btn-danger" onclick="return confirm('Are you sure delete this department?');" href="{{ url_for('Department.delete', id=deptusers['id']) }}">
-                    <i class="fas fa-times"></i>
-                  </button>
-                      {% endif %}
-
+                  <a type="button" class="btn btn-danger" onclick="return confirm('确定要删除此部门吗？');" href="{{ url_for('Department.delete', id=deptusers['id']) }}">
+                    删除
+                  </a>
                 </div>
+                  {% endif %}
               </div>
               <!-- /.card-header -->
             <div class="col-sm-6">
@@ -100,9 +100,9 @@
                         <td>{{ user['last_login'] }}</td>
                         <td>
                             {% if user['status']  == 1 %}
-                            <a><span class="badge-success">是</span></a>
+                            <a><span class="btn btn-success disabled">是</span></a>
                             {% else %}
-                           <a><span class="badge-dark">否</span></a>
+                           <a><span class="btn btn-danger disabled">否</span></a>
                             {% endif %}
                         </td>
                     </tr>

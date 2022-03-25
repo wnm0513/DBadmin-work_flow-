@@ -38,6 +38,7 @@ def Dept():
                 "phone": user.phone,
                 "ctime": user.ctime,
                 "last_login": user.last_login,
+                "status": user.status
             }
             usersinfo.append(userinfo)
         if manager is None:
@@ -63,45 +64,43 @@ def Dept():
 @Departments_view.route('/AddDepartment', methods=['GET', 'POST'])
 @login_required
 def AddDept():
+    department = Departments.query.all()
+    users = User.query.all()
     # 从网页取值
     if request.method == 'POST':
         deptname = request.form.get('deptname')
         username = request.form.get('username')
 
         user = User.query.filter_by(name=username).first()
-        dept = Departments(deptname=deptname, managerid=user.id)
         dept1 = Departments.query.filter(Departments.deptname == deptname).first()
         if dept1:
-            error = 'already exist.'
+            error = '部门已存在！'
+            flash(error)
+            return render_template('Usermanage/Department/AddDept.html', department=department, users=users)
 
         else:
+            dept = Departments(deptname=deptname, managerid=user.id)
+            db.session.add(dept)
+            db.session.commit()
+
+            # 选择部门经理时做的判断，如果不是就先更改再关联部门
+            if user.ismanager == 0:
+                dept2 = Departments.query.filter(Departments.deptname == deptname).first()
+                user.ismanager = 1
+                user.deptId = dept2.id
+            # 如果是就直接关联部门
+            else:
+                dept2 = Departments.query.filter(Departments.deptname == deptname).first()
+                user.deptId = dept2.id
             try:
-                db.session.add(dept)
+                db.session.add(user)
                 db.session.commit()
                 error = 'Add Department successfully.'
             except Exception as e:
                 error = str(e)
-        # 选择部门经理时做的判断，如果不是就先更改再关联部门
-        if user.ismanager == 0:
-            dept2 = Departments.query.filter(Departments.deptname == deptname).first()
-            user.ismanager = 1
-            user.deptId = dept2.id
-        # 如果是就直接关联部门
-        else:
-            dept2 = Departments.query.filter(Departments.deptname == deptname).first()
-            user.deptId = dept2.id
-        try:
-            db.session.add(user)
-            db.session.commit()
-            error = 'Add Department successfully.'
-        except Exception as e:
-            error = str(e)
 
         flash(error)
         return redirect(url_for('Department.Dept'))
-
-    department = Departments.query.all()
-    users = User.query.all()
 
     return render_template('Usermanage/Department/AddDept.html', department=department, users=users)
 
@@ -118,8 +117,12 @@ def delete(id):
     # 修改用户的部门Id
     users = User.query.filter_by(deptId=id).all()
     for user in users:
+
+        if user.ismanager == 1:
+            user.ismanager = 0
+
         user.deptId = 0
-        db.session.delete(user)
+        db.session.add(user)
         db.session.commit()
 
     return redirect(url_for('Department.Dept'))

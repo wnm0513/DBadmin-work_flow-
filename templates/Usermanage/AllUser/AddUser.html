@@ -67,9 +67,9 @@
                     <label for="phone">电话</label>
                     <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter phone" required>
                   </div>
-                    <div class="form-group">
+                  <div class="form-group">
                   <label for="deptId">部门</label>
-                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;">
+                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;" required>
                     <option selected>--请选择部门--</option>
                       {% for dept in department %}
                     <option>{{ dept['deptname'] }}</option>
@@ -78,7 +78,8 @@
                 </div>
                     <div class="form-group">
                   <label for="role_name">职位</label>
-                  <select id="role_name" name="role_name" class="form-control custom-select" style="width: 100%;">
+                  <select id="role_name" name="role_name" class="form-control custom-select" style="width: 100%;" re>
+
                     <option selected>--请选择职位--</option>
                       {% for role in role_name %}
                     <option>{{ role['role_name'] }}</option>
