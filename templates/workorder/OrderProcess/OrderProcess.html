@@ -126,7 +126,7 @@
                               查看详情
                           </a>
 
-                          {% if g.user.is_manager and workorderinfo['nowstep'] == 1 %}
+                          {% if g.user.ismanager == 1 and workorderinfo['nowstep'] == 1 %}
                           <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
                               同意
                           </a>
@@ -135,7 +135,7 @@
                           </a>
                           {% endif %}
 
-                          {% if g.user.is_super and workorderinfo['nowstep'] == 2 %}
+                          {% if g.user.issuper == 1 and workorderinfo['nowstep'] == 2 %}
                            <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
                               同意
                           </a>
@@ -146,7 +146,7 @@
                       </td>
                       {% endif %}
 
-                      {% if workorderinfo['auditing'] == 1 and workorderinfo['nowstep'] == 3 %}
+                      {% if workorderinfo['auditing'] == 1 and workorderinfo['nowstep'] == 3%}
                       <td class="text-center">
                           <span class="badge badge-success">已同意</span>
                       </td>
@@ -154,12 +154,14 @@
                           <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
                               查看详情
                           </a>
+                          {% if g.user.name == workorderinfo.uname %}
                           <a class="btn btn-success btn-sm" onclick="return confirm('确定执行此工单吗？');" href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
                               执行
                           </a>
                           <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorderinfo['id']) }}">
                               取消
                           </a>
+                          {% endif %}
                       </td>
                       {% endif %}
                   </tr>

@@ -55,19 +55,19 @@
             <table class="table mb-2">
                 <thead>
                   <tr>
-                    <th>状态</th>
-                     <th>sql</th>
-                    <th>错误信息</th>
-                    <th>预计影响行数</th>
+                    <th style="width: 10%" class="text-center">状态</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 30%" class="text-center">错误信息</th>
+                    <th style="width: 10%" class="text-center">预计影响行数</th>
                   </tr>
                   </thead>
                     <tbody>
                     {% for sqlinfo in sqlsinfo %}
                     <tr>
-                        <td>{{ sqlinfo['stage'] }}</td>
-                        <td>{{ sqlinfo['sql'] }}</td>
-                        <td>{{ sqlinfo['error_message'] }}</td>
-                        <td>{{ sqlinfo['affected_rows'] }}</td>
+                        <td style="width: 10%" class="text-center">{{ sqlinfo['stage'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ sqlinfo['sql'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ sqlinfo['error_message'] }}</td>
+                        <td style="width: 10%" class="text-center">{{ sqlinfo['affected_rows'] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -76,7 +76,7 @@
 
            <div class="card-footer">
                <div class="row">
-               {% if g.user.is_manager and workflow['nowstep'] == 1 %}
+               {% if g.user.is_manager == 1 and workflow['nowstep'] == 1 %}
                    <div class="col-1">
                           <a class="btn btn-success btn-sm" href="#">
                               同意
@@ -90,7 +90,7 @@
                    </div>
                           {% endif %}
 
-                          {% if g.user.is_super and workflow['nowstep'] == 2 %}
+                          {% if g.user.is_super == 1 and workflow['nowstep'] == 2 %}
                               <div class="col-1">
                            <a class="btn btn-success btn-sm" href="#">
                               同意
@@ -106,7 +106,7 @@
 
                    {% if g.user.id == workorder.uid %}
                        <div class="col-1">
-                     <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorderinfo['id']) }}">
+                     <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorder['id']) }}">
                               取消
                           </a>
                        </div>

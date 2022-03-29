@@ -55,19 +55,19 @@
             <table class="table mb-2">
                 <thead>
                   <tr>
-                    <th>状态</th>
-                     <th>sql</th>
-                    <th>错误信息</th>
-                    <th>预计影响行数</th>
+                    <th style="width: 10%" class="text-center">状态</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 30%" class="text-center">错误信息</th>
+                    <th style="width: 10%" class="text-center">预计影响行数</th>
                   </tr>
                   </thead>
                     <tbody>
                     {% for checksqlinfo in checksqlsinfo %}
                     <tr>
-                        <td>{{ checksqlinfo['stage'] }}</td>
-                        <td>{{ checksqlinfo['sql'] }}</td>
-                        <td>{{ checksqlinfo['error_message'] }}</td>
-                        <td>{{ checksqlinfo['affected_rows'] }}</td>
+                        <td style="width: 10%" class="text-center">{{ checksqlinfo['stage'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ checksqlinfo['sql'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ checksqlinfo['error_message'] }}</td>
+                        <td style="width: 10%" class="text-center">{{ checksqlinfo['affected_rows'] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

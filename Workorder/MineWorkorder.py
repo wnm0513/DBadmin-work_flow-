@@ -14,7 +14,7 @@ from sqlalchemy import and_
 from app import login_required
 from config import Config
 from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow, DbsDept, Departments
-from . import MineWorkorders, send_dingding
+from . import MineWorkorders, send_dingding, send_mail
 
 path = Config.INCEPTION_PATH
 
@@ -251,7 +251,7 @@ def MineWorkorder():
         try:
             uid = g.user.id
             file_path = '{path}/{current_day}/$_{uid}_{daytime}_$.sql'.format(path=path, uid=uid,
-                                                                              daytime=current_day+str(current_time),
+                                                                              daytime=current_day + str(current_time),
                                                                               current_day=current_day)
             wfile = open('{file_path}'.format(file_path=file_path), 'a+')
             # 将用户输入循环写入文件保存，以便后续分析和使用
@@ -404,6 +404,25 @@ def OrderCheck(newrecordsjson):
         except Exception as e:
             error = str(e)
             flash(error)
+
+        # 消息推送给部门经理
+        send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+        receive_dept_manager = User.query.filter(and_(User.deptId == send_dept.id, User.ismanager == 1)).first()
+        send_user = User.query.filter_by(name=workorder.username).first()
+        content = "您好，{confirm_user}，有新的审批待您确认：\n" \
+                  "审批单号：{woid}，\n" \
+                  "发起人：{user}，\n" \
+                  "发起部门：{dept}，\n" \
+                  "申请理由：{reason}\n\n" \
+                  "请登录DBAdmin查看待审批内容！\n地址：http://{ip}" \
+            .format(woid=workorder_tmp.id,
+                    user=send_user.name,
+                    dept=send_dept.deptname,
+                    reason=workorder.applyreason,
+                    confirm_user=receive_dept_manager.name,
+                    ip=Config.WEB_IP
+                    )
+        send_mail(content, receive_dept_manager.email)
 
         return redirect(url_for('OrderProcess.OrderProcess'))
 

@@ -21,14 +21,16 @@ def AllDB():
             db_user = User.query.filter_by(id=dbuser.uid).first()
 
         # 数据库所属部门
+        db_depts = None
         dbdepts = DbsDept.query.filter_by(dbid=db_tmp.id).all()
-        db_depts = []
-        for dbdept in dbdepts:
-            db_dept = Departments.query.filter_by(id=dbdept.deptid).first()
-            db_dept_tmp = {
-                'name': db_dept.deptname
-            }
-            db_depts.append(db_dept_tmp)
+        if dbdepts:
+            db_depts = []
+            for dbdept in dbdepts:
+                db_dept = Departments.query.filter_by(id=dbdept.deptid).first()
+                db_dept_tmp = {
+                    'name': db_dept.deptname
+                }
+                db_depts.append(db_dept_tmp)
 
         db_info = {
             'id': db_tmp.id,

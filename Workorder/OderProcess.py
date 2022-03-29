@@ -9,8 +9,8 @@ from sqlalchemy import and_
 
 from app import login_required
 from config import Config
-from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute
-from . import OrderProcesses
+from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute, User
+from . import OrderProcesses, send_mail
 from .MineWorkorder import goinceptionCheck, goinceptionExecute
 
 path = Config.INCEPTION_PATH
@@ -72,9 +72,10 @@ def OrderDetail(id):
     dbnamelist = allsqls.pop().split()
     filecontent.close()
 
-    for allsql in allsqls:
+    for num in range(len(dbnamelist)):
 
-        sqlresults = goinceptionCheck(allsql)
+        # 调用goinceptioncheck获取check结果
+        sqlresults = goinceptionCheck(dbnamelist[num], allsqls[num])
 
         for sqlresult in sqlresults:
             # 整合check结果
@@ -101,16 +102,55 @@ def OrderDetail(id):
 @login_required
 def agree(woid):
     workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
+    workorder = Workorder.query.filter(Workorder.id == woid).first()
 
     # 经理审核
     if workflow.nowstep == 1:
         workflow.nowstep = 2
 
+        # 消息推送DBA
+        send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+        receive_DBA = User.query.filter_by(id=4).first()
+        send_user = User.query.filter_by(name=workorder.username).first()
+        content = "您好，{confirm_user}，有新的审批待您确认：\n" \
+                  "审批单号：{woid}，\n" \
+                  "发起人：{user}，\n" \
+                  "发起部门：{dept}，\n" \
+                  "申请理由：{reason}\n\n" \
+                  "请登录DBAdmin查看待审批内容！\n地址：http://{ip}" \
+            .format(woid=workorder.id,
+                    user=send_user.name,
+                    dept=send_dept.deptname,
+                    reason=workorder.applyreason,
+                    confirm_user=receive_DBA.name,
+                    ip=Config.WEB_IP
+                    )
+        send_mail(content, receive_DBA.email)
+
     # DBA审核
     elif workflow.nowstep == 2:
         workflow.nowstep = 3
+
         if workflow.nowstep == workflow.maxstep:
             workflow.auditing = 1
+            # 消息推送
+
+            send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+            send_user = User.query.filter_by(name=workorder.username).first()
+            content = "您好，{confirm_user}，您的工单已通过审批，请执行：\n" \
+                      "审批单号：{woid}，\n" \
+                      "发起人：{user}，\n" \
+                      "发起部门：{dept}，\n" \
+                      "申请理由：{reason}\n\n" \
+                      "请登录DBAdmin查看待审批内容！\n地址：http://{ip}" \
+                .format(woid=workorder.id,
+                        user=send_user.name,
+                        dept=send_dept.deptname,
+                        reason=workorder.applyreason,
+                        confirm_user=send_user.name,
+                        ip=Config.WEB_IP
+                        )
+            send_mail(content, send_user.email)
 
     # 提交
     try:
