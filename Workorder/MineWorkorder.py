@@ -301,7 +301,7 @@ def MineWorkorder():
                                                       sqlnums=count,
                                                       success_status=success_status,
                                                       applydate=current_day, applytime=datetime.datetime.now(),
-                                                      lastupdatetime=datetime.datetime.now())
+                                                      )
 
                 try:
                     db.session.add(goinception_record)
@@ -436,6 +436,16 @@ def OrderCheck(newrecordsjson):
 @MineWorkorders.route('/refused/<filename>/', methods=['GET', 'POST'])
 @login_required
 def cancel(filename):
+    # 取出记录表中的信息
+    record = InceptionRecords.query.filter_by(filename=filename).first()
+    date = str(record.applydate)
+    orderdate = str(date).replace('-', '')
+
+    # 删除生成的文件
+    file_path = '{path}/{current_day}/{filename}'.format(path=path, current_day=orderdate, filename=filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
     # 提交
     try:
         db.session.query(InceptionRecords).filter(InceptionRecords.filename == filename).delete()

@@ -173,7 +173,6 @@ class InceptionRecords(db.Model):
     uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
     applydate = db.Column(db.DATE, default=datetime.datetime.today(), nullable=False, )  # comment='操作日期')
     applytime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='操作时间')
-    lastupdatetime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='最后操作时间')
     sqltext = db.Column(db.Text, )  # comment='操作文本')
     filename = db.Column(db.String(128), nullable=False, default='', )  # comment='json文件名')
     sqlnums = db.Column(db.Integer, nullable=False, default=0, )  # comment='SQL语句数量')
