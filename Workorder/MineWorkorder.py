@@ -104,7 +104,7 @@ def MineWorkorder():
     if request.method == 'POST':
         sqltext = request.form.get('sqltext')
         type_id = request.form.get('type_id')
-        error = None
+
         # 必须选择上线类型
         if type_id == '--请选择类型--':
             error = "请选择相应的上线类型"
@@ -297,13 +297,11 @@ def MineWorkorder():
                 else:
                     success_status = 0
 
-                execute_status = 0
                 goinception_record = InceptionRecords(uid=g.user.id, sqltext=sqlresult[5], filename=filename,
                                                       sqlnums=count,
                                                       success_status=success_status,
                                                       applydate=current_day, applytime=datetime.datetime.now(),
-                                                      lastupdatetime=datetime.datetime.now(),
-                                                      execute_status=execute_status)
+                                                      lastupdatetime=datetime.datetime.now())
 
                 try:
                     db.session.add(goinception_record)
@@ -331,6 +329,7 @@ def MineWorkorder():
 def OrderCheck(newrecordsjson):
     # 引用path
     global path
+    is_error = None
     # 定义存储check信息的列表
     checksqlsinfo = []
     # 定义存储executed信息的列表
@@ -355,6 +354,12 @@ def OrderCheck(newrecordsjson):
         sqlresults = goinceptionCheck(dbnamelist[num], allsqls[num])
 
         for sqlresult in sqlresults:
+
+            if sqlresult[4] == None:
+                is_error = 0
+            else:
+                is_error = 1
+
             # 整合check结果
             checksqlinfo = {
                 'stage': sqlresult[1],
@@ -371,7 +376,7 @@ def OrderCheck(newrecordsjson):
     # 当别的视图请求时
     if request.method == 'GET':
         return render_template('workorder/MineWorkorder/OrderCheck.html', checksqlsinfo=checksqlsinfo, type_id=type_id,
-                               filename=filename)
+                               filename=filename, is_error=is_error)
 
     # 当提交表单时
     if request.method == 'POST':

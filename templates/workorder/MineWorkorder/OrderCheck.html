@@ -76,9 +76,12 @@
 
            <div class="card-footer">
                <div class="row">
+               {% if is_error == 0 %}
                <div class="col-md-11">
                      <input type="submit" class="btn btn-success" value="确定提交工单">
                </div>
+               {% endif %}
+
                  <div class="col-md-1">
                      <a class="btn btn-danger" onclick="return confirm('确定要取消吗？');" href="{{ url_for('MineWorkorder.cancel', filename=filename) }}">取消</a>
                  </div>
