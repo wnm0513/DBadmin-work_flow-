@@ -34,7 +34,7 @@ def mysqlexecute(select_db, sql):
     # 初始化游标
     cur = conn.cursor()
     # 执行语句
-    ret = cur.execute(sql)
+    cur.execute(sql)
 
     # 获取返回结果
     result_all = cur.fetchall()

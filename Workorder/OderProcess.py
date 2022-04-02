@@ -107,6 +107,7 @@ def agree(woid):
     # 经理审核
     if workflow.nowstep == 1:
         workflow.nowstep = 2
+        workflow.otime = datetime.datetime.now()
 
         # 消息推送DBA
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()
@@ -130,9 +131,11 @@ def agree(woid):
     # DBA审核
     elif workflow.nowstep == 2:
         workflow.nowstep = 3
+        workflow.otime = datetime.datetime.now()
 
         if workflow.nowstep == workflow.maxstep:
             workflow.auditing = 1
+            workflow.otime = datetime.datetime.now()
             # 消息推送
 
             send_dept = Departments.query.filter_by(id=workorder.deptid).first()
@@ -227,6 +230,7 @@ def refused(woid):
 
     # 表示在审批流中被拒绝
     workflow.auditing = 2
+    workflow.otime = datetime.datetime.now()
 
     # 提交
     try:

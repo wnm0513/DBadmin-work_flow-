@@ -17,7 +17,6 @@ class User(db.Model):
     phone = db.Column(db.String(30), nullable=False, default='', )  # comment='手机')
     ding = db.Column(db.String(64), nullable=False, default='', )  # comment='dingding')
     deptId = db.Column(db.Integer, nullable=False, default=0, )  # comment='id')
-    answer = db.Column(db.String(64), nullable=False, default='banksteel', )  # comment='密保答案')
     issuper = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='超管0普通，1超管')
     ismanager = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='经理0普通，1经理')
     ctime = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='创建时间')

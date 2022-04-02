@@ -73,7 +73,11 @@
                     <tr>
                         <td>{{ user['account'] }}</td>
                         <td>{{ user['name'] }}</td>
+                        {% if user['deptname']%}
                         <td>{{ user['deptname'] }}</td>
+                        {% else %}
+                        <td>尚未分配</td>
+                        {% endif %}
                         <td>{{ user['role_name'] }}</td>
                         <td>{{ user['email'] }}</td>
                         <td>{{ user['phone'] }}</td>

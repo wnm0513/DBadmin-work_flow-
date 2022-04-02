@@ -17,11 +17,40 @@ from . import AllUsers
 @AllUsers.route('/AllUser', methods=['GET', 'POST'])
 @login_required
 def AllUser():
+    users = []
     # 连接查询
-    users = db.session.query(User.account, User.name, User.email, User.phone, User.issuper,
-                             User.ismanager, User.ctime, User.utime, User.role_name,
-                             User.last_login, User.status, Departments.deptname).join(Departments,
-                                                                                      Departments.id == User.deptId)
+    user = User.query.all()
+    for u in user:
+        dept = Departments.query.filter_by(id=u.deptId).first()
+        if dept:
+            user_info = {
+                'name': u.name,
+                'account': u.account,
+                'role_name': u.role_name,
+                'ding': u.ding,
+                'phone': u.phone,
+                'email': u.email,
+                'ctime': u.ctime,
+                'last_login': u.last_login,
+                'ismanager': u.ismanager,
+                'status': u.status,
+                'deptname': dept.deptname
+            }
+            users.append(user_info)
+        else:
+            user_info = {
+                'name': u.name,
+                'account': u.account,
+                'role_name': u.role_name,
+                'ding': u.ding,
+                'phone': u.phone,
+                'email': u.email,
+                'ctime': u.ctime,
+                'last_login': u.last_login,
+                'ismanager': u.ismanager,
+                'status': u.status,
+            }
+            users.append(user_info)
 
     return render_template('Usermanage/AllUser/AllUser.html', users=users)
 
@@ -89,6 +118,8 @@ def AddUser():
 def UserEdit(account):
     # 获取用户信息
     user = User.query.filter_by(account=account).first()
+    dept = Departments.query.filter_by(id=user.deptId).first()
+    department = Departments.query.all()
     # 确认更改
     if request.method == 'POST':
         name = request.form.get('name')
@@ -97,10 +128,14 @@ def UserEdit(account):
         dingding = request.form.get('dingding')
         phone = request.form.get('phone')
         email = request.form.get('email')
+        deptname = request.form.get('deptId')
+
 
         m1 = hashlib.md5()
         m1.update(passwd.encode("utf8"))
         pwd_md5 = m1.hexdigest()
+        deptId1 = Departments.query.filter(Departments.deptname == deptname).first()
+        deptId = deptId1.id
 
         user.name = name
         user.account = account
@@ -108,6 +143,13 @@ def UserEdit(account):
         user.phone = phone
         user.email = email
         user.pwd = pwd_md5
+        user.deptId =deptId
+        # 判断check box是否被选中
+        if request.form.get('ismanager'):
+            user.ismanager = 1
+
+        else:
+            user.ismanager = 0
 
         # 提交信息
         db.session.add(user)
@@ -118,9 +160,10 @@ def UserEdit(account):
             db.session.flush()
             flash(e)
 
-        return redirect(url_for('AllUser.Alluser'))
+        return redirect(url_for('AllUser.AllUser'))
 
-    return render_template('Usermanage/AllUser/UserEdit.html', user=user)
+
+    return render_template('Usermanage/AllUser/UserEdit.html', user=user, dept=dept, department=department)
 
 
 ## 删除用户 ##

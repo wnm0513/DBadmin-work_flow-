@@ -71,9 +71,32 @@
                     <label for="email">电子邮箱</label>
                     <input type="email" class="form-control" name="email" id="email" value="{{ request.form['email'] or user['email'] }}" required>
                   </div>
+                    <div class="form-group">
+                  <label for="deptId">部门</label>
+                  <select id="deptId" name="deptId" class="form-control custom-select" style="width: 100%;" required>
+                  {% if dept %}
+                    <option selected>{{ request.form['deptId'] or dept['deptname'] }}</option>
+                      {% else %}
+                      <option selected>--请选择部门--</option>
+                  {% endif %}
+                      {% for dept in department %}
+                    <option>{{ dept['deptname'] }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
                   <div class="form-group">
                     <label for="password">密码</label>
                     <input type="password" class="form-control" name="password" id="password" placeholder="Password" value="{{ request.form['password'] or user['passwd'] }}" required>
+                  </div>
+                <div class="form-check">
+                      <div class="icheck-primary d-inline">
+                          {% if user['ismanager'] == 1 %}
+                    <input type="checkbox" name="ismanager" id="ismanager" checked>
+                          {% else %}
+                    <input type="checkbox" name="ismanager" id="ismanager">
+                          {% endif %}
+                    <label for="ismanager">经理</label>
+                      </div>
                   </div>
                 </div>
                 <!-- /.card-body -->
@@ -128,7 +151,6 @@
 $$("[type=checkbox]").click(function () {
 	alert($(this).is(":checked"))
 })
-
 
 $(function () {
     //Initialize Select2 Elements
