@@ -427,7 +427,8 @@ def OrderCheck(newrecordsjson):
                     confirm_user=receive_dept_manager.name,
                     ip=Config.WEB_IP
                     )
-        send_mail(content, receive_dept_manager.email)
+        # send_mail(content, receive_dept_manager.email)
+        send_dingding(content, receive_dept_manager.ding)
 
         return redirect(url_for('OrderProcess.OrderProcess'))
 

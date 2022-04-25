@@ -29,3 +29,7 @@ class Config(object):
     UPLOADED_PROFILE_ALLOW = ['png', 'jpg', 'jpeg']
     # 网站ip
     WEB_IP = '192.168.254.39:2022'
+    # dingding应用的参数
+    appkey = 'dinga0ixmhcfdoqniba6'
+    appsecret = 'G9SqQc3FgVqoasecyz-RYv2OMcxEePvKvqjH0jfRpFKk4YDgAwAhSyO7il9DuT29'
+

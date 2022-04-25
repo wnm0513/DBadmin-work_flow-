@@ -10,7 +10,7 @@ from sqlalchemy import and_
 from app import login_required
 from config import Config
 from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute, User
-from . import OrderProcesses, send_mail
+from . import OrderProcesses, send_mail, send_dingding
 from .MineWorkorder import goinceptionCheck, goinceptionExecute
 
 path = Config.INCEPTION_PATH
@@ -113,7 +113,7 @@ def agree(woid):
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()
         receive_DBA = User.query.filter_by(id=4).first()
         send_user = User.query.filter_by(name=workorder.username).first()
-        content = "您好，{confirm_user}，有新的审批待您确认：\n" \
+        content = "您好，{confirm_user}，有新的工单待您审批：\n" \
                   "审批单号：{woid}，\n" \
                   "发起人：{user}，\n" \
                   "发起部门：{dept}，\n" \
@@ -126,7 +126,8 @@ def agree(woid):
                     confirm_user=receive_DBA.name,
                     ip=Config.WEB_IP
                     )
-        send_mail(content, receive_DBA.email)
+      #  send_mail(content, receive_DBA.email)
+        send_dingding(content, receive_DBA.ding)
 
     # DBA审核
     elif workflow.nowstep == 2:
@@ -153,7 +154,8 @@ def agree(woid):
                         confirm_user=send_user.name,
                         ip=Config.WEB_IP
                         )
-            send_mail(content, send_user.email)
+            # send_mail(content, send_user.email)
+            send_dingding(content, send_user.ding)
 
     # 提交
     try:
