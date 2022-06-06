@@ -45,6 +45,8 @@ def mysqlexecute(select_db, sql):
     # 获取标题
     field_names = [i[0] for i in cur.description]
 
+    cur.close()
+    conn.close()
     return field_names, result, select_IP.ip
 
 # 判断是否为select
@@ -78,14 +80,14 @@ def sqlExecute():
 
     # 如果提交了SQL语句
     if request.method == 'POST':
-        select_env = request.form.get('select_env')
+      #  select_env = request.form.get('select_env')
         select_db = request.form.get('select_db')
         sqltext = request.form.get('sqltext')
 
-        if select_env == '--请选择环境--':
-            error = "请选择环境！"
-            flash(error)
-            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
+      #  if select_env == '--请选择环境--':
+       #     error = "请选择环境！"
+        #    flash(error)
+         #   return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
 
         if select_db == '--请选择数据库--':
             error = "请选择数据库！"
@@ -110,7 +112,7 @@ def sqlExecute():
 
         try:
             select_record = QueryHistory(uid=g.user.id, name=g.user.name, dbname=select_db,
-                                         sqltext=sqltext, select_env=select_env, host=result[2],
+                                         sqltext=sqltext, host=result[2],
                                          create_time=datetime.datetime.now())
             db.session.add(select_record)
             db.session.commit()

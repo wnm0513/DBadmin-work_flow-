@@ -20,7 +20,7 @@ def OrderHistory():
     # 定义列表
     workordersinfo = []
 
-    # 查询工单，并以权限分类用户能看到的正在进行的工单
+    # 查询工单，并以权限分类用户能看到完成的工单
     if g.user.is_super():
         workorders = Workorder.query.order_by(text('-etime')).all()
     elif g.user.is_manager():
@@ -143,8 +143,8 @@ def rollback(woid):
         db.session.add(rollback_info)
         db.session.commit()
 
-    conn_backup_db.close()
     cur.close()
+    conn_backup_db.close()
 
     rollback_all = RollBack.query.filter_by(woid=woid).all()
     for rollback_one in rollback_all:
@@ -161,6 +161,9 @@ def rollback(woid):
         cur_execute = conn_rollback.cursor()
         # 执行
         cur_execute.execute(rollbacksql)
+
+        cur.close()
+        conn_rollback.close()
 
     workorder = Workorder.query.filter_by(id=woid).first()
     # 将工单状态调整为已回滚

@@ -126,7 +126,7 @@ def agree(woid):
                     confirm_user=receive_DBA.name,
                     ip=Config.WEB_IP
                     )
-      #  send_mail(content, receive_DBA.email)
+        # send_mail(content, receive_DBA.email)
         send_dingding(content, receive_DBA.ding)
 
     # DBA审核

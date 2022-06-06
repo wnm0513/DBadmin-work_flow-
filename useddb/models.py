@@ -230,6 +230,6 @@ class QueryHistory(db.Model):
     name = db.Column(db.String(20), nullable=False, default='', )  # 操作人姓名
     dbname = db.Column(db.String(50), nullable=False, default='', )  # 数据库名
     sqltext = db.Column(db.String(5000), )  # comment='执行语句')
-    select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
+   #  select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
     host = db.Column(db.String(50), nullable=False)  # comment = '实例连接ip'
     create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '执行时间'

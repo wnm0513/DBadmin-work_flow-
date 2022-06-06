@@ -52,6 +52,9 @@ def goinceptionCheck(dbname, sqltext):
     # 获取check结果
     sqlresults = cur.fetchall()
 
+    cur.close()
+    conn_goinception.close()
+
     return sqlresults
 
 
@@ -87,6 +90,9 @@ def goinceptionExecute(dbname, sqltext):
 
     # 获取check结果
     sqlresults = cur.fetchall()
+
+    cur.close()
+    conn_goinception.close()
 
     return sqlresults
 
