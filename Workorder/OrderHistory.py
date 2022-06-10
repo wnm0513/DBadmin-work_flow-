@@ -6,7 +6,7 @@ from flask import (
 )
 from sqlalchemy import and_, between, text
 
-from app import login_required
+from login_required import login_required
 from config import Config
 from useddb import models
 from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack

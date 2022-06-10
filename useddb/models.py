@@ -23,7 +23,7 @@ class User(db.Model):
     utime = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='修改时间')
     last_login = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='最近登录')
     profile = db.Column(db.String(64), nullable=False, default='#', )  # comment='头像')
-    role_name = db.Column(db.String(32), nullable=False, unique=True, default='', )  # comment='角色名')
+    role_name = db.Column(db.String(32), nullable=False,  default='', )  # comment='角色名')
     status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='状态0异常，1正常')
 
     def __repr__(self):

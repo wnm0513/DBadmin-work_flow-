@@ -11,28 +11,11 @@ import pymysql
 from flask_login import current_user
 from useddb.models import db, User, Workorder
 from config import Config
+from login_required import login_required
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
-
-
-# 在其他视图中验证
-# 用户登录以后才能进行功能的使用。
-# 在每个视图中可以使用 装饰器 来完成这个工作
-def login_required(view):
-    # 装饰器返回一个新的视图，该视图包含了传递给装饰器的原视图
-    @functools.wraps(view)
-    # 新的函数检查用户是否载入。
-    # 如果已载入，那么就继续正常执行原视图
-    def wrapped_view(**kwargs):
-        # 否则就重定向到登录页面
-        if g.user is None:
-            return redirect(url_for('login.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
 
 
 # 在加载页面时读取用户
@@ -125,5 +108,11 @@ from SQL.sql_history import sqlHistories
 
 app.register_blueprint(sqlHistories, url_prefix='/sqlHistory')
 
+# if __name__ == '__main__':
+#    app.run(host="0.0.0.0", port=2022)
+
+from gevent import pywsgi
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=2022)
+    server = pywsgi.WSGIServer(('0.0.0.0', 2022), app)
+    server.serve_forever()

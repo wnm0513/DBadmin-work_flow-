@@ -8,7 +8,7 @@ from flask import (
 import hashlib
 import useddb
 import pymysql
-from app import login_required
+from login_required import login_required
 from useddb.models import db, User, UsersRoles, Departments
 from . import AllUsers
 

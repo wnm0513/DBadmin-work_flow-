@@ -12,7 +12,7 @@ from sqlalchemy.sql.functions import count
 
 import useddb
 import pymysql
-from app import login_required
+from login_required import login_required
 from config import Config
 from useddb.models import db, User, UsersRoles, Departments, Dbs, DbsDept, DbsUser, QueryHistory
 from . import sqlExecutes

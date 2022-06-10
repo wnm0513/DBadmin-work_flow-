@@ -108,45 +108,11 @@
                       </td>
                       <td class="text-center">
                           {% if workorderinfo['nowstep'] == 1 %}
-                              已提交，待审批
-                          {% endif %}
-                      {% if workorderinfo['nowstep'] == 2 %}
-                              本部经理已同意，待DBA审批
-                          {% endif %}
-                      {% if workorderinfo['nowstep'] == 3 %}
                               DBA已同意，待执行
                           {% endif %}
                       </td>
-                      {% if workorderinfo['auditing'] == 0 %}
-                      <td class="text-center">
-                          <span class="badge badge-info">审批中</span>
-                      </td>
-                      <td class="project-actions text-center">
-                          <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
-                              查看详情
-                          </a>
 
-                          {% if g.user.ismanager == 1 and workorderinfo['nowstep'] == 1 %}
-                          <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
-                              同意
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
-                              驳回
-                          </a>
-                          {% endif %}
-
-                          {% if g.user.issuper == 1 and workorderinfo['nowstep'] == 2 %}
-                           <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
-                              同意
-                          </a>
-                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
-                              驳回
-                          </a>
-                          {% endif %}
-                      </td>
-                      {% endif %}
-
-                      {% if workorderinfo['auditing'] == 1 and workorderinfo['nowstep'] == 3%}
+                      {% if workorderinfo['auditing'] == 0 and workorderinfo['nowstep'] == 1%}
                       <td class="text-center">
                           <span class="badge badge-success">已同意</span>
                       </td>

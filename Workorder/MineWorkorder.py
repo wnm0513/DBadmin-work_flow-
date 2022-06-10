@@ -11,7 +11,7 @@ from flask import (
 from flask_login import current_user
 from sqlalchemy import and_
 
-from app import login_required
+from login_required import login_required
 from config import Config
 from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow, DbsDept, Departments
 from . import MineWorkorders, send_dingding, send_mail
@@ -434,7 +434,7 @@ def OrderCheck(newrecordsjson):
                     ip=Config.WEB_IP
                     )
         # send_mail(content, receive_dept_manager.email)
-        send_dingding(content, receive_dept_manager.ding)
+        # send_dingding(content, receive_dept_manager.ding)
 
         return redirect(url_for('OrderProcess.OrderProcess'))
 

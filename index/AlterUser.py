@@ -8,7 +8,7 @@ from flask import (
 )
 import hashlib
 
-from app import login_required
+from login_required import login_required
 from useddb.models import User, db
 from config import Config
 

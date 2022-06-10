@@ -3,7 +3,7 @@ from flask import (
 )
 from sqlalchemy import and_
 
-from app import login_required
+from login_required import login_required
 from useddb.models import db, User, Departments, DbsDept, Dbs
 from . import DeptDBs
 

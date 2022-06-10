@@ -7,7 +7,7 @@ from flask import (
 
 from sqlalchemy import and_
 
-from app import login_required
+from login_required import login_required
 from config import Config
 from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute, User
 from . import OrderProcesses, send_mail, send_dingding
@@ -127,7 +127,7 @@ def agree(woid):
                     ip=Config.WEB_IP
                     )
         # send_mail(content, receive_DBA.email)
-        send_dingding(content, receive_DBA.ding)
+        # send_dingding(content, receive_DBA.ding)
 
     # DBA审核
     elif workflow.nowstep == 2:
@@ -155,7 +155,7 @@ def agree(woid):
                         ip=Config.WEB_IP
                         )
             # send_mail(content, send_user.email)
-            send_dingding(content, send_user.ding)
+            # send_dingding(content, send_user.ding)
 
     # 提交
     try:
