@@ -23,7 +23,7 @@ def DeptDB():
                                                                           User.id == Departments.managerid).filter(
             and_(User.deptId == dept.id, User.ismanager == 1)).first()
         ducount = DbsDept.query.filter_by(deptid=dept.id).count()
-        dbids = db.session.query(Dbs, Dbs.name, Dbs.ip, Dbs.port, Dbs.note, DbsDept.deptid) \
+        dbids = db.session.query(DbsDept.id, Dbs.name, Dbs.ip, Dbs.port, Dbs.note, DbsDept.deptid) \
             .join(DbsDept, DbsDept.dbid == Dbs.id) \
             .filter(DbsDept.deptid == dept.id) \
             .all()
@@ -31,6 +31,7 @@ def DeptDB():
         dbsinfo = []
         for dbs1 in dbids:
             dbinfo = {
+                "dbsdeptid": dbs1.id,
                 "name": dbs1.name,
                 "ip": dbs1.ip,
                 "port": dbs1.port,
@@ -58,11 +59,10 @@ def DeptDB():
 
 
 # 从部门中移除
-@DeptDBs.route('/delete/<dbname>/', methods=['GET', 'POST'])
+@DeptDBs.route('/delete/<dbsdeptid>/', methods=['GET', 'POST'])
 @login_required
-def delete(dbname):
-    dbs = Dbs.query.filter_by(name=dbname).first()
-    dbdept = DbsDept.query.filter_by(dbid=dbs.id).first()
+def delete(dbsdeptid):
+    dbdept = DbsDept.query.filter_by(id=dbsdeptid).first()
     if dbdept:
         db.session.delete(dbdept)
         db.session.commit()

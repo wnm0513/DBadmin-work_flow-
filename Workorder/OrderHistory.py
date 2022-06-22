@@ -9,7 +9,7 @@ from sqlalchemy import and_, between, text
 from login_required import login_required
 from config import Config
 from useddb import models
-from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack
+from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack, RollBackExecute
 from . import OrderHistories
 from .MineWorkorder import path
 
@@ -24,10 +24,10 @@ def OrderHistory():
     if g.user.is_super():
         workorders = Workorder.query.order_by(text('-etime')).all()
     elif g.user.is_manager():
-        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId)\
+        workorders = db.session.query(Workorder).filter(Workorder.deptid == g.user.deptId) \
             .order_by(text('-etime')).all()
     else:
-        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id)\
+        workorders = db.session.query(Workorder).filter(Workorder.uid == g.user.id) \
             .order_by(text('-etime')).all()
 
     # 如果选择了时间区间
@@ -36,15 +36,15 @@ def OrderHistory():
         end_time = request.form.get('end_time')
 
         if g.user.is_super():
-            workorders = db.session.query(Workorder)\
+            workorders = db.session.query(Workorder) \
                 .filter(Workorder.etime.between(start_time, end_time)).order_by(text('-etime')).all()
         elif g.user.is_manager():
-            workorders = db.session.query(Workorder)\
-                .filter(and_(Workorder.deptid == g.user.deptId, Workorder.etime.between(start_time, end_time)))\
+            workorders = db.session.query(Workorder) \
+                .filter(and_(Workorder.deptid == g.user.deptId, Workorder.etime.between(start_time, end_time))) \
                 .order_by(text('-etime')).all()
         else:
-            workorders = db.session.query(Workorder)\
-                .filter(and_(Workorder.uid == g.user.id, Workorder.etime.between(start_time, end_time)))\
+            workorders = db.session.query(Workorder) \
+                .filter(and_(Workorder.uid == g.user.id, Workorder.etime.between(start_time, end_time))) \
                 .order_by(text('-etime')).all()
 
     for workorder in workorders:
@@ -61,30 +61,45 @@ def OrderHistory():
             }
             sqlsinfo.append(sqlinfos)
 
-        # 取出执行过的信息给已通过和回滚的工单
+        # 取出执行过的信息给已通过的工单
         executedsqls = InceptionRecordsExecute.query.filter(InceptionRecordsExecute.woid == workorder.id).all()
 
         # 从记录执行过的sql的表中取出数据整合
         executedsqlsinfo = []
         for executedsql in executedsqls:
-            executedsqlinfo = {
-                'exetime': executedsql.exetime,
-                'sqltext': executedsql.sqltext,
-                'affrows': executedsql.affrows,
-                'executetime': executedsql.executetime,
-                'opid_time': executedsql.sequence,
-                'exstatus': executedsql.exstatus
-            }
-            executedsqlsinfo.append(executedsqlinfo)
+            opid_time = executedsql.opid_time
+            # 取出回滚信息给已回滚的工单
+            rollbackedsql = RollBackExecute.query.filter_by(opid_time=opid_time).first()
+            if rollbackedsql:
+                executedsqlinfo = {
+                    'exetime': executedsql.exetime,
+                    'sqltext': executedsql.sqltext,
+                    'affrows': executedsql.affrows,
+                    'executetime': executedsql.executetime,
+                    'opid_time': executedsql.sequence,
+                    'exstatus': executedsql.exstatus,
+                    'rollbackedopidtime': rollbackedsql.opid_time,
+                    'rollbackedtime': rollbackedsql.create_time,
+                    'rollbackedsql': rollbackedsql.sqltext
+                }
+                executedsqlsinfo.append(executedsqlinfo)
+            else:
+                executedsqlinfo = {
+                    'exetime': executedsql.exetime,
+                    'sqltext': executedsql.sqltext,
+                    'affrows': executedsql.affrows,
+                    'executetime': executedsql.executetime,
+                    'opid_time': executedsql.sequence,
+                    'exstatus': executedsql.exstatus,
+                }
+                executedsqlsinfo.append(executedsqlinfo)
 
         workorderinfo = {
             'id': workorder.id,
-            'uname': workflow.uname,
+            'uname': workorder.username,
             'deptname': dept.deptname,
             'etime': workorder.etime,
             'type': workorder.applyreason,
-            'nowstep': workflow.nowstep,
-            'auditing': workflow.auditing,
             'status': workorder.status,
             'executedsqlsinfo': executedsqlsinfo,
             'sqlsinfo': sqlsinfo
@@ -97,6 +112,135 @@ def OrderHistory():
 @OrderHistories.route('/rollback/<woid>')
 @login_required
 def rollback(woid):
+    executed_rollbacks = RollBackExecute.query.filter_by(woid=woid).all()
+    for executed_rollback in executed_rollbacks:
+        if executed_rollback:
+            opid_time = executed_rollback.opid_time
+            try:
+                db.session.query(RollBack).filter(RollBack.opid_time == opid_time).delete()
+                db.session.commit()
+            except Exception as e:
+                error = str(e)
+                flash(error)
+
+    rollback_all = RollBack.query.filter_by(woid=woid).distinct().all()
+    for rollback_one in rollback_all:
+        rollbackeds = RollBack.query.filter_by(opid_time=rollback_one.opid_time).first()
+        if rollbackeds:
+            rollbacksql = rollback_one.sqltext
+
+            # 执行回滚语句
+            conn_rollback = pymysql.connect(
+                host=rollback_one.host,
+                port=int(Config.PORT),
+                user=Config.MYSQLUSER,
+                password=Config.MYSQLPASSWORD
+            )
+            # 初始化游标
+            cur_execute = conn_rollback.cursor()
+            # 执行
+            begin = 'begin;'
+            commit = 'commit;'
+            cur_execute.execute(begin)
+            cur_execute.execute(rollbacksql)
+            cur_execute.execute(commit)
+
+            cur_execute.close()
+            conn_rollback.close()
+
+            rollback_info = RollBackExecute(woid=woid, opid_time=rollback_one.opid_time, sqltext=rollbacksql,
+                                            tablename=rollback_one.tablename, dbname=rollback_one.dbname,
+                                            host=rollback_one.host, create_time=datetime.datetime.now())
+            db.session.add(rollback_info)
+            db.session.commit()
+
+        workorder = Workorder.query.filter_by(id=woid).first()
+        # 将工单状态调整为已回滚
+        workorder.status = 3
+
+        db.session.add(workorder)
+        db.session.commit()
+
+    # 提交
+    try:
+        db.session.query(RollBack).filter(RollBack.woid == woid).delete()
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderHistory.OrderHistory'))
+
+
+@OrderHistories.route('/rollbacksingle/<rollback_opidtime>')
+@login_required
+def rollback_single(rollback_opidtime):
+    global rollbackwoid, rollback_sql, rollback_tbname, rollback_dbname, rollback_host
+    rollback_one = RollBack.query.filter_by(opid_time=rollback_opidtime).first()
+
+    rollbacksql = rollback_one.sqltext
+    rollbackwoid = rollback_one.woid
+    rollback_tbname = rollback_one.tablename
+    rollback_dbname = rollback_one.dbname
+    rollback_host = rollback_one.host
+    rollback_sql = rollback_one.sqltext
+
+    # 执行回滚语句
+    conn_rollback = pymysql.connect(
+        host=rollback_one.host,
+        port=int(Config.PORT),
+        user=Config.MYSQLUSER,
+        password=Config.MYSQLPASSWORD
+    )
+    # 初始化游标
+    cur_execute = conn_rollback.cursor()
+    # 执行
+    begin = 'begin;'
+    commit = 'commit;'
+    cur_execute.execute(begin)
+    cur_execute.execute(rollbacksql)
+    cur_execute.execute(commit)
+
+    cur_execute.close()
+    conn_rollback.close()
+
+    rollback_info = RollBackExecute(woid=rollbackwoid, opid_time=rollback_opidtime, sqltext=rollback_sql,
+                             tablename=rollback_tbname, dbname=rollback_dbname, host=rollback_host,
+                             create_time=datetime.datetime.now())
+    db.session.add(rollback_info)
+    db.session.commit()
+
+    # 计算已经回滚的语句数量，并与工单表中记录的语句数量对比
+    rollbackednum = 0
+    workorder = Workorder.query.filter_by(id=rollbackwoid).first()
+    workordersql = InceptionRecords.query.filter_by(filename=workorder.filename).first()
+    workordersqlnum = workordersql.sqlnums
+    executed_rollbacks = RollBackExecute.query.filter_by(woid=rollbackwoid).all()
+    for executed_rollback in executed_rollbacks:
+            rollbackednum = rollbackednum + 1
+            if rollbackednum == workordersqlnum:
+                # 将工单状态调整为部分回滚
+                workorder.status = 3
+            else:
+                # 将工单状态调整为部分回滚
+                workorder.status = 4
+
+    db.session.add(workorder)
+    db.session.commit()
+    # 提交
+    try:
+        db.session.query(RollBack).filter(RollBack.woid == rollbackwoid).delete()
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
+
+    return redirect(url_for('OrderHistory.OrderHistory'))
+
+
+@OrderHistories.route('/rollbackreview/<woid>')
+@login_required
+def rollbackreview(woid):
     # 此段分别用两个账号操作数据库，一个在备份实例，一个在目标实例
     # 这里查询inception执行过的SQL记录表
     inception_executeds = db.session.query(InceptionRecordsExecute).filter(InceptionRecordsExecute.woid == woid).all()
@@ -109,6 +253,7 @@ def rollback(woid):
 
     # 初始化备份数据库的游标
     cur = conn_backup_db.cursor()
+    rollbackinfos = []
     # 将回滚信息写入回滚表
     for inception_executed in inception_executeds:
         rollback_opidtime = inception_executed.sequence
@@ -133,7 +278,8 @@ def rollback(woid):
         if rollback_tbname:
             rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
             cur.execute(rollbackstatement)
-            rollback_sql = cur.fetchall()
+            sql = cur.fetchall()
+            rollback_sql = sql[0][0]
         else:
             rollback_sql = "查询回滚语句出错，请联系DBA处理！;"
 
@@ -143,33 +289,40 @@ def rollback(woid):
         db.session.add(rollback_info)
         db.session.commit()
 
+        rollbacked = RollBackExecute.query.filter_by(opid_time=rollback_opidtime).first()
+        if rollbacked:
+            rollbackedstatus = 1
+        else:
+            rollbackedstatus = 0
+
+        rollbackinfo = {
+            'inception_executed_sql': inception_executed.sqltext,
+            'rollback_opidtime': rollback_opidtime,
+            'rollback_sql': rollback_sql,
+            'rollback_tbname': rollback_tbname,
+            'rollback_dbname': rollback_dbname,
+            'status': rollbackedstatus
+        }
+        rollbackinfos.append(rollbackinfo)
+
     cur.close()
     conn_backup_db.close()
 
-    rollback_all = RollBack.query.filter_by(woid=woid).all()
-    for rollback_one in rollback_all:
-        rollbacksql = rollback_one.sqltext
+    # 当别的视图请求时
+    if request.method == 'GET':
+        return render_template('workorder/OrderHistory/RollBackReview.html', rollbackinfos=rollbackinfos, woid=woid)
 
-        # 执行回滚语句
-        conn_rollback = pymysql.connect(
-            host=rollback_one.host,
-            port=int(Config.PORT),
-            user=Config.MYSQLUSER,
-            password=Config.MYSQLPASSWORD
-        )
-        # 初始化游标
-        cur_execute = conn_rollback.cursor()
-        # 执行
-        cur_execute.execute(rollbacksql)
 
-        cur.close()
-        conn_rollback.close()
-
-    workorder = Workorder.query.filter_by(id=woid).first()
-    # 将工单状态调整为已回滚
-    workorder.status = 3
-    
-    db.session.add(workorder)
-    db.session.commit()
+## 取消 ##
+@OrderHistories.route('/refused/<woid>/', methods=['GET', 'POST'])
+@login_required
+def cancel(woid):
+    # 提交
+    try:
+        db.session.query(RollBack).filter(RollBack.woid == woid).delete()
+        db.session.commit()
+    except Exception as e:
+        error = str(e)
+        flash(error)
 
     return redirect(url_for('OrderHistory.OrderHistory'))

@@ -136,7 +136,7 @@
                               查看详情
                           </button>
                           {% if g.user.is_super and workorderinfo['status'] == 1 %}
-                          <a class="btn btn-danger btn-sm" onclick="return confirm('确定回滚此工单吗？');" href="{{ url_for('OrderHistory.rollback', woid=workorderinfo['id']) }}">
+                          <a class="btn btn-danger btn-sm" onclick="return confirm('确定回滚此工单吗？');" href="{{ url_for('OrderHistory.rollbackreview', woid=workorderinfo['id']) }}">
                               回滚
                           </a>
                           {% endif %}
@@ -155,8 +155,8 @@
                 <thead>
                   <tr>
                     <th style="width: 20%" class="text-center">执行时间</th>
+                      <th style="width: 10%" class="text-center">执行耗费时间</th>
                      <th style="width: 30%" class="text-center">sql</th>
-                    <th style="width: 20%" class="text-center">执行耗费时间</th>
                     <th style="width: 20%" class="text-center">执行状态</th>
                       <th style="width: 10%" class="text-center">影响行数</th>
                   </tr>
@@ -165,8 +165,8 @@
                     {% for executedsqlinfo in workorderinfo['executedsqlsinfo'] %}
                     <tr>
                         <td class="text-center">{{ executedsqlinfo['exetime'] }}</td>
-                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['executetime'] }} s</td>
+                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
                     </tr>
@@ -225,8 +225,8 @@
                 <thead>
                   <tr>
                     <th style="width: 20%" class="text-center">执行时间</th>
+                      <th style="width: 20%" class="text-center">执行耗费时间</th>
                      <th style="width: 30%" class="text-center">sql</th>
-                    <th style="width: 20%" class="text-center">执行耗费时间</th>
                     <th style="width: 20%" class="text-center">执行状态</th>
                       <th style="width: 10%" class="text-center">影响行数</th>
                   </tr>
@@ -235,8 +235,8 @@
                     {% for sqlinfo in workorderinfo['sqlsinfo'] %}
                     <tr>
                         <td class="text-center">未执行</td>
-                        <td class="text-center">{{ sqlinfo['sqltext'] }}</td>
                         <td class="text-center">未执行</td>
+                        <td class="text-center">{{ sqlinfo['sqltext'] }}</td>
                         <td class="text-center">未执行</td>
                         <td class="text-center">未执行</td>
                     </tr>
@@ -295,20 +295,20 @@
                 <thead>
                   <tr>
                     <th style="width: 20%" class="text-center">执行时间</th>
+                      <th style="width: 10%" class="text-center">执行耗费时间</th>
                      <th style="width: 30%" class="text-center">sql</th>
-                    <th style="width: 20%" class="text-center">执行耗费时间</th>
-                    <th style="width: 20%" class="text-center">执行状态</th>
-                      <th style="width: 10%" class="text-center">影响行数</th>
+                    <th style="width: 10%" class="text-center">回滚时间</th>
+                      <th style="width: 30%" class="text-center">回滚语句</th>
                   </tr>
                   </thead>
                     <tbody>
                     {% for executedsqlinfo in workorderinfo['executedsqlsinfo'] %}
                     <tr>
                         <td class="text-center">{{ executedsqlinfo['exetime'] }}</td>
-                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['executetime'] }} s</td>
-                        <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
-                        <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['rollbackedtime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['rollbackedsql'] }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -316,6 +316,86 @@
                       </div>
 
          {% endif %}
+
+         {% if workorderinfo['status'] == 4 %}
+
+          <table class="table table-striped projects">
+
+
+                  <tbody>
+                  <tr>
+                      <td style="width: 1%">
+                          #
+                      </td>
+                      <td style = "width: 20%" class="text-center">
+                          Execute at {{ workorderinfo['etime'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['uname'] }}
+                      </td>
+
+                      <td style = "width: 20%" class ="text-center">
+                          {{ workorderinfo['deptname'] }}
+                      </td>
+                      <td style = "width: 10%" class ="text-center">
+                          {{ workorderinfo['type'] }}
+                      </td>
+
+                      {% if workorderinfo['status'] == 4 %}
+                      <td style = "width: 8%" class ="text-center">
+                          <span class="badge badge-warning">已进行部分回滚</span>
+                      </td>
+                      <td style = "width: 20%" class="project-actions text-center">
+                          <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#detailGo{{ workorderinfo['id'] }}" >
+                              查看详情
+                          </button>
+                      {% if g.user.is_super %}
+                          <a class="btn btn-danger btn-sm" onclick="return confirm('确定回滚此工单吗？');" href="{{ url_for('OrderHistory.rollbackreview', woid=workorderinfo['id']) }}">
+                              回滚
+                          </a>
+                          {% endif %}
+                      </td>
+                      {% endif %}
+
+                  </tr>
+
+                      </tbody>
+
+
+          </table>
+
+          <div class="list-group collapse" id="detailGo{{ workorderinfo['id'] }}">
+                           <table class="table mb-2">
+                <thead>
+                  <tr>
+                    <th style="width: 20%" class="text-center">执行时间</th>
+                      <th style="width: 10%" class="text-center">执行耗费时间</th>
+                     <th style="width: 30%" class="text-center">sql</th>
+                    <th style="width: 10%" class="text-center">回滚时间</th>
+                      <th style="width: 30%" class="text-center">回滚语句</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for executedsqlinfo in workorderinfo['executedsqlsinfo'] %}
+                    <tr>
+                        <td class="text-center">{{ executedsqlinfo['exetime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['executetime'] }} s</td>
+                        <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
+                        {% if executedsqlinfo['rollbackedtime'] %}
+                        <td class="text-center">{{ executedsqlinfo['rollbackedtime'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['rollbackedsql'] }}</td>
+                         {% else %}
+                        <td class="text-center">未执行</td>
+                        <td class="text-center">未执行</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+                      </div>
+
+         {% endif %}
+
     {% endfor %}
 
 

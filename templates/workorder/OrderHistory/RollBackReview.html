@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../../static/AdminLTE-3.1.0/dist/css/adminlte.min.css">
+
+
+</head>
+
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>回滚review</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="{{ url_for('OrderHistory.OrderHistory') }}">返回</a></li>
+              <li class="breadcrumb-item active">回滚review</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="content">
+      <div class="container-fluid">
+
+      <div class="row">
+          <div class="col-md-9">
+           <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">回滚信息</h2>
+                     </div>
+           <form method="post">
+             <div class="card-body">
+            <table class="table mb-2">
+                <thead>
+                  <tr>
+                      <th style="width: 20%" class="text-center">表名</th>
+                      <th style="width: 30%" class="text-center">原始sql</th>
+                     <th style="width: 30%" class="text-center">回滚sql</th>
+                      <th style="width: 20%" class="text-center">操作</th>
+                  </tr>
+                  </thead>
+                    <tbody>
+                    {% for rollbackinfo in rollbackinfos %}
+                    <tr>
+                        <td style="width: 20%" class="text-center">{{ rollbackinfo['rollback_tbname'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ rollbackinfo['inception_executed_sql'] }}</td>
+                        <td style="width: 30%" class="text-center">{{ rollbackinfo['rollback_sql'] }}</td>
+                        {% if rollbackinfo['status'] == 0 %}
+                        <td style="width: 20%" class="text-center"><a class="btn btn-danger" onclick="return myFunction()" href="{{ url_for('OrderHistory.rollback_single', rollback_opidtime=rollbackinfo['rollback_opidtime']) }}">执行此句</a></td>
+                         {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+             </div>
+
+
+
+           <div class="card-footer">
+               <div class="row">
+                   <div class="col-md-11">
+                     <a type="submit" class="btn btn-success" onclick="return myFunction()" href="{{ url_for('OrderHistory.rollback', woid=woid) }}">确定全部执行</a>
+               </div>
+
+                 <div class="col-md-1">
+                     <a class="btn btn-danger" href="{{ url_for('OrderHistory.cancel', woid=woid) }}">返回</a>
+                 </div>
+
+                   </div>
+           </div>
+
+
+           </form>
+           <div class="overlay" id="loading" style="visibility:hidden">
+                                                  <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+                                              </div>
+            </div>
+
+
+
+           </div>
+      </div>
+        <!-- /.row -->
+      </div>
+        <!-- /.container-fluid -->
+    </section>
+<!-- jQuery -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../../static/AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script>
+function myFunction() {
+    var a = confirm('确定回滚吗？');
+    if(a==true){
+        document.getElementById("loading").style.visibility="visible";
+    }
+    else {
+        return false
+    }
+}
+</script>
+
+</body>
+</html>

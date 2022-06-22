@@ -219,6 +219,23 @@ class RollBack(db.Model):
     create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '生成时间'
 
 
+# 已执行的回滚表
+class RollBackExecute(db.Model):
+    """
+    回滚
+    """
+    __tablename__ = 'rollback_execute'
+    # 使用下面的配置进行解决
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
+    opid_time = db.Column(db.String(50), index=True, nullable=False, default=0, )  # comment='opid_time')
+    sqltext = db.Column(db.String(5000), )  # comment='执行语句')
+    tablename = db.Column(db.String(200), nullable=False)  # comment = '表名'
+    dbname = db.Column(db.String(50), nullable=False, default='', )  # 数据库名
+    host = db.Column(db.String(50), nullable=False)  # comment = '实例连接ip'
+    create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '生成时间'
+
+
 class QueryHistory(db.Model):
     """
     查询历史

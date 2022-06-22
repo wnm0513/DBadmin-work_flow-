@@ -26,7 +26,7 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('MineWorkorder.MineWorkorder') }}">Home</a></li>
               <li class="breadcrumb-item active">工单进度</li>
             </ol>
           </div>
@@ -121,7 +121,7 @@
                               查看详情
                           </a>
                           {% if g.user.name == workorderinfo.uname %}
-                          <a class="btn btn-success btn-sm" onclick="return confirm('确定执行此工单吗？');" href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
+                          <a class="btn btn-success btn-sm" onclick="return myFunction()"  href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
                               执行
                           </a>
                           <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.cancel', woid=workorderinfo['id']) }}">
@@ -131,10 +131,15 @@
                       </td>
                       {% endif %}
                   </tr>
+
+
               {% endfor %}
               </tbody>
           </table>
         </div>
+                                              <div class="overlay" id="loading" style="visibility:hidden">
+                                                  <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+                                              </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
@@ -155,5 +160,16 @@
 <script src="../../../static/AdminLTE-3.1.0/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../../../static/AdminLTE-3.1.0/dist/js/demo.js"></script>
+<script>
+function myFunction() {
+    var a = confirm('确定执行此工单吗？');
+    if(a==true){
+        document.getElementById("loading").style.visibility="visible";
+    }
+    else {
+        return false
+    }
+}
+</script>
 </body>
 </html>
