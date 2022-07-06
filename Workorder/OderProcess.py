@@ -36,13 +36,14 @@ def OrderProcess():
     cur.execute(s_sql)
     # 获取id
     ids = cur.fetchall()
-    idss = str(ids)
-    # 更改格式
-    strs = idss.replace(',)', '').replace('((', '(').replace(' (', '')
-    # 生成删除语句
-    del_sql = "delete from flask.workorder where id in {ids};".format(ids=strs)
-    # 执行
-    cur.execute(del_sql)
+    if ids:
+        idss = str(ids)
+        # 更改格式
+        strs = idss.replace(',)', '').replace('((', '(').replace(' (', '')
+        # 生成删除语句
+        del_sql = "delete from flask.workorder where id in {ids};".format(ids=strs)
+        # 执行
+        cur.execute(del_sql)
     # 关闭连接
     cur.close()
     conn_workcheck.close()
