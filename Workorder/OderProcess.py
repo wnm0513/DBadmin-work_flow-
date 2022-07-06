@@ -21,6 +21,31 @@ path = Config.INCEPTION_PATH
 def OrderProcess():
     # 定义列表
     workordersinfo = []
+    conn_workcheck = pymysql.connect(
+        host=Config.IP,
+        port=int(Config.PORT),
+        user=Config.MYSQLUSER,
+        password=Config.MYSQLPASSWORD
+    )
+
+    # 初始化inception数据库的游标
+    cur = conn_workcheck.cursor()
+    # 生成查询语句
+    s_sql = "select id from flask.workorder where id not in (select woid from flask.workflow);"
+    # 执行
+    cur.execute(s_sql)
+    # 获取id
+    ids = cur.fetchall()
+    idss = str(ids)
+    # 更改格式
+    strs = idss.replace(',)', '').replace('((', '(').replace(' (', '')
+    # 生成删除语句
+    del_sql = "delete from flask.workorder where id in {ids};".format(ids=strs)
+    # 执行
+    cur.execute(del_sql)
+    # 关闭连接
+    cur.close()
+    conn_workcheck.close()
 
     # 查询工单，并以权限分类用户能看到的正在进行的工单
     if g.user.is_super():
@@ -37,7 +62,7 @@ def OrderProcess():
         workflow = WorkFlow.query.filter(WorkFlow.woid == workorder.id).first()
         workorderinfo = {
             'id': workorder.id,
-            'uname': workflow.uname,
+            'uname': workorder.username,
             'deptname': deptname,
             'stime': workorder.stime,
             'type': workorder.applyreason,
