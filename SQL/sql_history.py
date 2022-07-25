@@ -6,6 +6,9 @@ from flask import (
 )
 
 import hashlib
+
+from sqlalchemy import text
+
 import useddb
 import pymysql
 from login_required import login_required
@@ -19,8 +22,8 @@ from . import sqlHistories
 def sqlHistory():
     # 根据用户权限选择可选择查询的数据库
     if g.user.is_super():
-        queryhistory = QueryHistory.query.all()
+        queryhistory = QueryHistory.query.order_by(text('-create_time')).all()
     else:
-        queryhistory = QueryHistory.query.filter_by(uid=g.user.id).all()
+        queryhistory = QueryHistory.query.filter_by(uid=g.user.id).order_by(text('-create_time')).all()
 
     return render_template('SQL/History/sqlHistory.html', queryhistory=queryhistory)

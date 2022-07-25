@@ -108,6 +108,16 @@ from SQL.sql_history import sqlHistories
 
 app.register_blueprint(sqlHistories, url_prefix='/sqlHistory')
 
+# Redis的查询
+from SQL.Redis_get import RedisExecutes
+
+app.register_blueprint(RedisExecutes, url_prefix='/RedisGET')
+
+# Redis的历史查询
+from SQL.Redis_history import RedisExecutesHistory
+
+app.register_blueprint(RedisExecutesHistory, url_prefix='/RedissqlExecute')
+
 # if __name__ == '__main__':
 #    app.run(host="0.0.0.0", port=2022)
 

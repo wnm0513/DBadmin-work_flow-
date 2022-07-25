@@ -78,6 +78,8 @@ def sqlExecute():
             }
             dbs.append(mydeptdblist)
 
+    select_db = '--请选择数据库--'
+    sqltext = ''
     # 如果提交了SQL语句
     if request.method == 'POST':
       #  select_env = request.form.get('select_env')
@@ -89,21 +91,21 @@ def sqlExecute():
         #    flash(error)
          #   return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
 
-        if select_db == '--请选择数据库--':
+        if select_db == '':
             error = "请选择数据库！"
             flash(error)
-            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
+            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs, s_db=select_db, s_sql=sqltext)
 
         if not str(sqltext).replace('\r\n', '').replace('\n', '').strip().endswith(';'):
             error = "SQL请以英文模式下的';'结尾"
             flash(error)
-            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
+            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs, s_db=select_db, s_sql=sqltext)
 
         tmp = isSelect(sqltext)
         if not tmp:
             error = '只支持SELECT语句！'
             flash(error)
-            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)
+            return render_template('SQL/Execute/sqlExecute.html', dbs=dbs, s_db=select_db, s_sql=sqltext)
 
         # 返回了三个值，【0】是表头， 【1】是内容的列表，【2】是ip
         result = mysqlexecute(select_db, sqltext)
@@ -121,6 +123,7 @@ def sqlExecute():
             error = str(e)
             flash(error)
 
-        return render_template('SQL/Execute/sqlExecute.html', result=result, dbs=dbs, count_col=count_col)
+        return render_template('SQL/Execute/sqlExecute.html', result=result, dbs=dbs, count_col=count_col,
+                               s_db=select_db, s_sql=sqltext)
 
     return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)

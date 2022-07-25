@@ -33,7 +33,7 @@
            <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">SELECT语句执行</h2>
+                    <h2 class="card-title">GET语句执行</h2>
                      </div>
 
              <form method="post">
@@ -42,31 +42,59 @@
                     <div class="col-md-10 offset-md-1">
                         <div class="row">
                             <div class="col-6">
-                               <!--- <div class="form-group">
-                                    <label for="select_env">环境:</label>
-                                    <select id="select_env" name="select_env" class="select2" style="width: 100%;">
-                                    <option selected>--请选择环境--</option>
-                                        <option>生产</option>
-                                        <option>预发</option>
-                                        <option>测试</option>
-                                        <option>开发</option>
-                                    </select>
-                                </div>  --->
-
                                 <div class="form-group">
-                                    <label for="select_db">数据库:</label>
-                                    <select id="select_db" name="select_db" class="select2" style="width: 100%;">
-                                    <option selected>{{ s_db }}</option>
-                                        {% for db in dbs %}
-                                        <option>{{ db['name'] }}</option>
+                                    <label for="select_env">实例:</label>
+                                    <select id="select_env" name="select_env" class="select2" onchange="changefield('select_env',select_db,'{{ url_for('RedisExecute.changeselectfield') }}')" style="width: 100%;">
+                                    <option selected>--请选择实例--</option>
+                                     {% for inst in instance %}
+                                        <option>{{ inst['instance_name'] }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-3">
 
                             </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="select_db">数据库:</label>
+                                    <select id="select_db" name="select_db" class="select2" style="width: 100%;">
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+
+<script>
+function changefield(choose, id, url) {
+var data;
+var select = document.getElementById(choose);
+$(id).html(""); //每次重新选择当前列表框，就清空下⼀级列表框。
+for (i = 0; i < select.length; i++) {
+if (select[i].selected) { //判断被选中项
+Name = select[i].text;
+data = {
+"name": Name
+};
+$.post({ //发起ajax请求
+url: url,
+type: "POST",
+data: JSON.stringify(data),
+{#dataType:'json'#}
+contentType: "application/json; charset=UTF-8",
+success: function (data) {
+{#console.log(data.length);#}
+if (data) {
+$("<option selected='selected' disabled='disabled' style='display: none' value=''></option> ").appendTo(id);
+for (i = 0; i < data.length; i++) {
+$("<option value='" + data[i] + "'>" + data[i] + "</option>").appendTo(id);
+}
+} else {
+alert('error')
+}
+}
+});
+}
+}
+}
+</script>
 
 
                     {% for message in get_flashed_messages() %}
@@ -88,7 +116,7 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-md-1">
-                     <input type="submit" class="btn btn-primary" value="确定查询">
+                     <input type="submit" class="btn btn-primary" value="提交">
                         </div>
 
                         </div>
@@ -102,26 +130,26 @@
             {% if result %}
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">查询结果</h3>
+                <h3 class="card-title">结果</h3>
               </div>
               <!-- /.card-header -->
                 <div class="card-body">
                    <table id="example1" class="table m-0">
-                  <thead>
+                  <!---<thead>
                   <tr>
                       {% for result_title in result[0] %}
                     <th>{{ result_title }}</th>
                       {% endfor %}
                   </tr>
-                  </thead>
+                  </thead>--->
                     <tbody>
-                    {% for result_content in result[1] %}
+
                     <tr>
-                        {% for i in range(count_col) %}
-                        <td>{{ result_content[i] }}</td>
-                        {% endfor %}
+
+                        <td>{{ result }}</td>
+
                     </tr>
-                    {% endfor %}
+
                     </tbody>
                 </table>
                 </div>
@@ -194,6 +222,7 @@
                     },
     }).buttons().container();
     });
+
 
 </script>
 </body>

@@ -23,7 +23,7 @@ class User(db.Model):
     utime = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='修改时间')
     last_login = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now(), )  # comment='最近登录')
     profile = db.Column(db.String(64), nullable=False, default='#', )  # comment='头像')
-    role_name = db.Column(db.String(32), nullable=False,  default='', )  # comment='角色名')
+    role_name = db.Column(db.String(32), nullable=False, default='', )  # comment='角色名')
     status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='状态0异常，1正常')
 
     def __repr__(self):
@@ -247,6 +247,37 @@ class QueryHistory(db.Model):
     name = db.Column(db.String(20), nullable=False, default='', )  # 操作人姓名
     dbname = db.Column(db.String(50), nullable=False, default='', )  # 数据库名
     sqltext = db.Column(db.String(5000), )  # comment='执行语句')
-   #  select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
+    #  select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
     host = db.Column(db.String(50), nullable=False)  # comment = '实例连接ip'
+    create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '执行时间'
+
+
+# Redis实例表
+class Instance(db.Model):
+    """
+    各个线上实例配置
+    """
+    __tablename__ = 'instance'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    instance_name = db.Column(db.String(50), nullable=False)  # comment = '实例名称'
+    host = db.Column(db.String(50), nullable=False)  # comment = '实例连接ip'
+    port = db.Column(db.String(10), nullable=False, default='6379')  # comment = '端口''
+    password = db.Column(db.String(200), nullable=True)  # comment = '密码'
+    status = db.Column(db.SmallInteger, nullable=False, default=0)  # 是否为大数据部门  0：非 1：是 2:redis集群
+
+
+# Redis实例执行历史表
+class InstanceQueryHistory(db.Model):
+    """
+    查询历史
+    """
+    __tablename__ = 'instancequeryhistory'
+    # 使用下面的配置进行解决
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='操作人id')
+    name = db.Column(db.String(20), nullable=False, default='', )  # 操作人姓名
+    dbname = db.Column(db.String(50), nullable=False, default='', )  # 数据库名
+    sqltext = db.Column(db.String(5000), )  # comment='执行语句')
+    select_env = db.Column(db.String(200), nullable=False)  # comment = '实例名称'
     create_time = db.Column(db.DATETIME, nullable=False, default=datetime.datetime.now())  # comment = '执行时间'

@@ -227,7 +227,7 @@ def MineWorkorder():
                 nopridblist = list(set(dbnamelist).difference(set(mydept_dbs)))
                 # 如果含有没有操作权限的数据库
                 if len(nopridblist) > 0:
-                    error = '您并不其具有以下数据库的操作权限：{nopridblist}'.format(nopridblist=nopridblist)
+                    error = '您不具有以下数据库的操作权限：{nopridblist}'.format(nopridblist=nopridblist)
                     flash(error)
                     return render_template('workorder/MineWorkorder/MineWorkorder.html')
 
