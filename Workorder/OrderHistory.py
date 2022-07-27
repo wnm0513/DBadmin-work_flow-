@@ -4,7 +4,7 @@ import pymysql
 from flask import (
     Flask, Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from sqlalchemy import and_, between, text
+from sqlalchemy import and_, between, text, distinct
 
 from login_required import login_required
 from config import Config
@@ -123,15 +123,16 @@ def rollback(woid):
                 error = str(e)
                 flash(error)
 
-    rollback_all = RollBack.query.filter_by(woid=woid).distinct().all()
+    rollback_all = db.session.query(distinct(RollBack.opid_time)).filter_by(woid=woid).all()
     for rollback_one in rollback_all:
-        rollbackeds = RollBack.query.filter_by(opid_time=rollback_one.opid_time).first()
+        opid_time = str(rollback_one).replace('(\'', '').replace('\',)', '')
+        rollbackeds = RollBack.query.filter_by(opid_time=opid_time).first()
         if rollbackeds:
-            rollbacksql = rollback_one.sqltext
+            rollback_dbname = rollbackeds.dbname
 
             # 执行回滚语句
             conn_rollback = pymysql.connect(
-                host=rollback_one.host,
+                host=rollbackeds.host,
                 port=int(Config.PORT),
                 user=Config.MYSQLUSER,
                 password=Config.MYSQLPASSWORD
@@ -139,20 +140,38 @@ def rollback(woid):
             # 初始化游标
             cur_execute = conn_rollback.cursor()
             # 执行
-            begin = 'begin;'
-            commit = 'commit;'
-            cur_execute.execute(begin)
-            cur_execute.execute(rollbacksql)
-            cur_execute.execute(commit)
+            # 数据库交互查询回滚语句
+            s_host = "select host from "
+            s_table = "select tablename from "
+            s_sql = "select rollback_statement from "
+            table = ".$_$Inception_backup_information$_$ "
+            condition = " where  opid_time='{opid_time}';".format(opid_time=rollbackeds.opid_time)
 
-            cur_execute.close()
-            conn_rollback.close()
+            rollbacktbname = s_table + rollback_dbname + table + condition
+            cur_execute.execute(rollbacktbname)
+            tbname = cur_execute.fetchall()
+            rollback_tbname = tbname[0][0]
 
-            rollback_info = RollBackExecute(woid=woid, opid_time=rollback_one.opid_time, sqltext=rollbacksql,
-                                            tablename=rollback_one.tablename, dbname=rollback_one.dbname,
-                                            host=rollback_one.host, create_time=datetime.datetime.now())
-            db.session.add(rollback_info)
-            db.session.commit()
+            if rollback_tbname:
+                rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
+                cur_execute.execute(rollbackstatement)
+                sql = cur_execute.fetchall()
+                for rollbacksql in sql:
+                    rollback_sql = str(rollbacksql).replace('("', '').replace('",)', '')
+                    # 执行
+                    begin = 'begin;'
+                    commit = 'commit;'
+                    cur_execute.execute(begin)
+                    cur_execute.execute(rollback_sql)
+                    cur_execute.execute(commit)
+
+                    rollback_info = RollBackExecute(woid=rollbackeds.woid, opid_time=rollbackeds.opid_time,
+                                                    sqltext=rollback_sql,
+                                                    tablename=rollback_tbname, dbname=rollback_dbname,
+                                                    host=rollbackeds.host,
+                                                    create_time=datetime.datetime.now())
+                    db.session.add(rollback_info)
+                    db.session.commit()
 
         workorder = Workorder.query.filter_by(id=woid).first()
         # 将工单状态调整为已回滚
@@ -178,12 +197,10 @@ def rollback_single(rollback_opidtime):
     global rollbackwoid, rollback_sql, rollback_tbname, rollback_dbname, rollback_host
     rollback_one = RollBack.query.filter_by(opid_time=rollback_opidtime).first()
 
-    rollbacksql = rollback_one.sqltext
     rollbackwoid = rollback_one.woid
     rollback_tbname = rollback_one.tablename
     rollback_dbname = rollback_one.dbname
     rollback_host = rollback_one.host
-    rollback_sql = rollback_one.sqltext
 
     # 执行回滚语句
     conn_rollback = pymysql.connect(
@@ -194,28 +211,49 @@ def rollback_single(rollback_opidtime):
     )
     # 初始化游标
     cur_execute = conn_rollback.cursor()
-    # 执行
-    begin = 'begin;'
-    commit = 'commit;'
-    cur_execute.execute(begin)
-    cur_execute.execute(rollbacksql)
-    cur_execute.execute(commit)
+
+    # 数据库交互查询回滚语句
+    s_host = "select host from "
+    s_table = "select tablename from "
+    s_sql = "select rollback_statement from "
+    table = ".$_$Inception_backup_information$_$ "
+    condition = " where  opid_time='{opid_time}';".format(opid_time=rollback_opidtime)
+
+    rollbacktbname = s_table + rollback_dbname + table + condition
+    cur_execute.execute(rollbacktbname)
+    tbname = cur_execute.fetchall()
+    rollback_tbname = tbname[0][0]
+
+    if rollback_tbname:
+        rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
+        cur_execute.execute(rollbackstatement)
+        sql = cur_execute.fetchall()
+        for rollbacksql in sql:
+            rollback_sql = str(rollbacksql).replace('("', '').replace('",)', '')
+            # 执行
+            begin = 'begin;'
+            commit = 'commit;'
+            cur_execute.execute(begin)
+            cur_execute.execute(rollback_sql)
+            cur_execute.execute(commit)
+
+            rollback_info = RollBackExecute(woid=rollbackwoid, opid_time=rollback_opidtime, sqltext=rollback_sql,
+                                            tablename=rollback_tbname, dbname=rollback_dbname, host=rollback_host,
+                                            create_time=datetime.datetime.now())
+            db.session.add(rollback_info)
+            db.session.commit()
 
     cur_execute.close()
     conn_rollback.close()
 
-    rollback_info = RollBackExecute(woid=rollbackwoid, opid_time=rollback_opidtime, sqltext=rollback_sql,
-                             tablename=rollback_tbname, dbname=rollback_dbname, host=rollback_host,
-                             create_time=datetime.datetime.now())
-    db.session.add(rollback_info)
-    db.session.commit()
+
 
     # 计算已经回滚的语句数量，并与工单表中记录的语句数量对比
     rollbackednum = 0
     workorder = Workorder.query.filter_by(id=rollbackwoid).first()
     workordersql = InceptionRecords.query.filter_by(filename=workorder.filename).first()
     workordersqlnum = workordersql.sqlnums
-    executed_rollbacks = RollBackExecute.query.filter_by(woid=rollbackwoid).all()
+    executed_rollbacks = db.session.query(distinct(RollBackExecute.opid_time)).filter_by(woid=rollbackwoid).all()
     for executed_rollback in executed_rollbacks:
             rollbackednum = rollbackednum + 1
             if rollbackednum == workordersqlnum:

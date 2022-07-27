@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OrderProcess</title>
+  <title>OrderHistory</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -135,7 +135,7 @@
                           <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#detailGo{{ workorderinfo['id'] }}" >
                               查看详情
                           </button>
-                          {% if g.user.is_super and workorderinfo['status'] == 1 %}
+                         {% if g.user.is_super and workorderinfo['status'] == 1 %}
                           <a class="btn btn-danger btn-sm" onclick="return confirm('确定回滚此工单吗？');" href="{{ url_for('OrderHistory.rollbackreview', woid=workorderinfo['id']) }}">
                               回滚
                           </a>
