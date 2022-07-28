@@ -45,7 +45,7 @@
                                 <div class="form-group">
                                     <label for="select_env">实例:</label>
                                     <select id="select_env" name="select_env" class="select2" onchange="changefield('select_env',select_db,'{{ url_for('RedisExecute.changeselectfield') }}')" style="width: 100%;">
-                                    <option selected>--请选择实例--</option>
+                                    <option selected>{{ s_env }}</option>
                                      {% for inst in instance %}
                                         <option>{{ inst['instance_name'] }}</option>
                                         {% endfor %}
@@ -57,6 +57,7 @@
                                 <div class="form-group">
                                     <label for="select_db">数据库:</label>
                                     <select id="select_db" name="select_db" class="select2" style="width: 100%;">
+                                        <option selected>{{ s_db }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -127,7 +128,7 @@ alert('error')
            </div>
            </div>
 
-            {% if result %}
+            {% if flag == 1 %}
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">结果</h3>
@@ -135,21 +136,24 @@ alert('error')
               <!-- /.card-header -->
                 <div class="card-body">
                    <table id="example1" class="table m-0">
-                  <!---<thead>
+                  <thead>
                   <tr>
-                      {% for result_title in result[0] %}
-                    <th>{{ result_title }}</th>
-                      {% endfor %}
+                      {% if result %}
+                    <th>返回结果</th>
+
+                          {% else %}
+                          <th>无返回结果</th>
+                          {% endif %}
+
                   </tr>
-                  </thead>--->
+                  </thead>
                     <tbody>
-
+                       {% for i in result %}
                     <tr>
-
-                        <td>{{ result }}</td>
+                        <td>{{ i }}</td>
 
                     </tr>
-
+                    {% endfor %}
                     </tbody>
                 </table>
                 </div>

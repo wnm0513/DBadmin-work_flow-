@@ -55,7 +55,7 @@ def Redis_conn_exec(select_env, select_db, sql):
 def query_check(sql=''):
     """提交查询前的检查"""
     result = {'msg': '', 'bad_query': True, 'filtered_sql': sql, 'has_star': False}
-    safe_cmd = ["keys", "exists", "ttl", "pttl", "type", "get", "mget", "strlen",
+    safe_cmd = ["exists", "ttl", "pttl", "type", "get", "mget", "strlen",
                 "hgetall", "hexists", "hget", "hmget", "hkeys", "hvals",
                 "smembers", "scard", "sdiff", "sunion", "sismember", "llen", "lrange", "lindex"]
     # 命令校验，仅可以执行safe_cmd内的命令
@@ -85,6 +85,9 @@ def changeselectfield():
 @RedisExecutes.route('/RedisGET', methods=['GET', 'POST'])
 @login_required
 def RedisGet():
+    flag = 0
+    select_env = '--请选择实例--'
+    select_db = '--请选择数据库--'
     result = []
     sqltext = ''
     instance = Instance.query.all()
@@ -98,7 +101,7 @@ def RedisGet():
             error = "请选择实例！"
             flash(error)
 
-        if select_db == '':
+        if select_db == '--请选择数据库--':
             error = "请选择数据库！"
             flash(error)
 
@@ -120,5 +123,7 @@ def RedisGet():
             error = str(e)
             flash(error)
 
+        flag = 1
+
     return render_template('SQL/Execute/RedisExecute.html', instance=instance, result=result,
-                           s_sql=sqltext)
+                           s_sql=sqltext, s_env=select_env, s_db=select_db, flag=flag)

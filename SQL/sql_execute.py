@@ -78,8 +78,8 @@ def sqlExecute():
             }
             dbs.append(mydeptdblist)
 
-    select_db = '--请选择数据库--'
-    sqltext = ''
+    flag = 0
+
     # 如果提交了SQL语句
     if request.method == 'POST':
       #  select_env = request.form.get('select_env')
@@ -123,7 +123,9 @@ def sqlExecute():
             error = str(e)
             flash(error)
 
+        flag = 1
+
         return render_template('SQL/Execute/sqlExecute.html', result=result, dbs=dbs, count_col=count_col,
-                               s_db=select_db, s_sql=sqltext)
+                               s_db=select_db, s_sql=sqltext, flag=flag)
 
     return render_template('SQL/Execute/sqlExecute.html', dbs=dbs)

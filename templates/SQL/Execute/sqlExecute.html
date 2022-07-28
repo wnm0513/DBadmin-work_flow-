@@ -99,7 +99,7 @@
            </div>
            </div>
 
-            {% if result %}
+            {% if flag == 1 %}
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">查询结果</h3>
@@ -109,9 +109,15 @@
                    <table id="example1" class="table m-0">
                   <thead>
                   <tr>
+                  {% if result %}
                       {% for result_title in result[0] %}
                     <th>{{ result_title }}</th>
                       {% endfor %}
+
+                  {% else %}
+                      <th>无返回结果</th>
+
+                  {% endif %}
                   </tr>
                   </thead>
                     <tbody>
