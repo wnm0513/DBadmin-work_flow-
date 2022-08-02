@@ -175,7 +175,11 @@
                         <td class="text-center">{{ executedsqlinfo['executetime'] }} s</td>
                         <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
+                        {% if executedsqlinfo['errorinfo'] %}
                         <td class="text-center">{{ executedsqlinfo['errorinfo'] }}</td>
+                        {%else%}
+                        <td class="text-center">None</td>
+                        {%endif%}
                         <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
                     </tr>
                     {% endfor %}
