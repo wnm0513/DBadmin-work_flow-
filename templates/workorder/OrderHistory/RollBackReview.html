@@ -57,7 +57,7 @@
                         <td style="width: 20%" class="text-center">{{ rollbackinfo['rollback_tbname'] }}</td>
                         <td style="width: 30%" class="text-center">{{ rollbackinfo['inception_executed_sql'] }}</td>
                         <td style="width: 30%" class="text-center">{{ rollbackinfo['rollback_sql'] }}</td>
-                        {% if rollbackinfo['status'] == 0 %}
+                        {% if rollbackinfo['status'] == 0 and rollbackinfo['rollback_sql'] != '查询回滚语句出错，请联系DBA处理！' %}
                         <td style="width: 20%" class="text-center"><a class="btn btn-danger" onclick="return myFunction()" href="{{ url_for('OrderHistory.rollback_single', rollback_opidtime=rollbackinfo['rollback_opidtime']) }}">执行此句</a></td>
                          {% endif %}
                     </tr>

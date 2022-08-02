@@ -81,13 +81,16 @@
                       <th style="width: 1%">
                           #
                       </th>
-                      <th style="width: 20%" class="text-center">
+                      <th style="width: 15%" class="text-center">
+                          工单编号
+                      </th>
+                      <th style="width: 15%" class="text-center">
                           工单执行时间
                       </th>
                       <th style="width: 10%" class="text-center">
                           工单提交者
                       </th>
-                      <th style="width: 20%" class="text-center">
+                      <th style="width: 10%" class="text-center">
                           工单提交者部门
                       </th>
                       <th style="width: 10%" class="text-center">
@@ -111,16 +114,19 @@
                   <tbody>
                   <tr>
                       <td style="width: 1%">
+                          #
+                      </td>
+                      <td style="width: 15%" class="text-center">
                           {{ workorderinfo['id'] }}
                       </td>
-                      <td style="width: 20%" class="text-center">
+                      <td style="width: 15%" class="text-center">
                           Execute at {{ workorderinfo['etime'] }}
                       </td>
                       <td style="width: 10%" class="text-center">
                           {{ workorderinfo['uname'] }}
                       </td>
 
-                      <td style="width: 20%" class="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['deptname'] }}
                       </td>
                       <td style="width: 10%" class="text-center">
@@ -154,10 +160,11 @@
                            <table class="table mb-2">
                 <thead>
                   <tr>
-                    <th style="width: 20%" class="text-center">执行时间</th>
+                    <th style="width: 10%" class="text-center">执行时间</th>
                       <th style="width: 10%" class="text-center">执行耗费时间</th>
-                     <th style="width: 30%" class="text-center">sql</th>
-                    <th style="width: 20%" class="text-center">执行状态</th>
+                     <th style="width: 20%" class="text-center">sql</th>
+                    <th style="width: 10%" class="text-center">执行状态</th>
+                      <th style="width: 20%" class="text-center">错误信息</th>
                       <th style="width: 10%" class="text-center">影响行数</th>
                   </tr>
                   </thead>
@@ -168,6 +175,7 @@
                         <td class="text-center">{{ executedsqlinfo['executetime'] }} s</td>
                         <td class="text-center">{{ executedsqlinfo['sqltext'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['exstatus'] }}</td>
+                        <td class="text-center">{{ executedsqlinfo['errorinfo'] }}</td>
                         <td class="text-center">{{ executedsqlinfo['affrows'] }}</td>
                     </tr>
                     {% endfor %}
@@ -256,19 +264,22 @@
                   <tbody>
                   <tr>
                       <td style="width: 1%">
+                          #
+                      </td>
+                      <td style="width: 15%" class="text-center">
                           {{ workorderinfo['id'] }}
                       </td>
-                      <td style = "width: 20%" class="text-center">
+                      <td style="width: 15%" class="text-center">
                           Execute at {{ workorderinfo['etime'] }}
                       </td>
-                      <td style = "width: 10%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['uname'] }}
                       </td>
 
-                      <td style = "width: 20%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['deptname'] }}
                       </td>
-                      <td style = "width: 10%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['type'] }}
                       </td>
 
@@ -325,19 +336,22 @@
                   <tbody>
                   <tr>
                       <td style="width: 1%">
+                          #
+                      </td>
+                      <td style="width: 15%" class="text-center">
                           {{ workorderinfo['id'] }}
                       </td>
-                      <td style = "width: 20%" class="text-center">
+                      <td style="width: 15%" class="text-center">
                           Execute at {{ workorderinfo['etime'] }}
                       </td>
-                      <td style = "width: 10%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['uname'] }}
                       </td>
 
-                      <td style = "width: 20%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['deptname'] }}
                       </td>
-                      <td style = "width: 10%" class ="text-center">
+                      <td style="width: 10%" class="text-center">
                           {{ workorderinfo['type'] }}
                       </td>
 

@@ -118,11 +118,12 @@ from SQL.Redis_history import RedisExecutesHistory
 
 app.register_blueprint(RedisExecutesHistory, url_prefix='/RedissqlExecute')
 
-# if __name__ == '__main__':
-#    app.run(host="0.0.0.0", port=2022, debug=True, threaded=True)
-
-from gevent import pywsgi
 
 if __name__ == '__main__':
-    server = pywsgi.WSGIServer(('0.0.0.0', 2022), app.run(thread=True))
-    server.serve_forever()
+   app.run(host="0.0.0.0", port=2022, debug=True, threaded=True)
+
+#from gevent import pywsgi
+#
+#if __name__ == '__main__':
+#    server = pywsgi.WSGIServer(('0.0.0.0', 2022), app.run(thread=True))
+#    server.serve_forever()

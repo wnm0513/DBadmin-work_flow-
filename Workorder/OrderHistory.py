@@ -9,7 +9,7 @@ from sqlalchemy import and_, between, text, distinct
 from login_required import login_required
 from config import Config
 from useddb import models
-from useddb.models import Workorder, db, Departments, WorkFlow, InceptionRecordsExecute, InceptionRecords, RollBack, RollBackExecute
+from useddb.models import Workorder, db, Departments, InceptionRecordsExecute, InceptionRecords, RollBack, RollBackExecute
 from . import OrderHistories
 from .MineWorkorder import path
 
@@ -49,7 +49,6 @@ def OrderHistory():
 
     for workorder in workorders:
         dept = db.session.query(Departments).filter(Departments.id == workorder.deptid).first()
-        workflow = WorkFlow.query.filter(WorkFlow.woid == workorder.id).first()
         # 取出sqlcheck信息， 准备给被驳回和取消的工单
         sqls_info = InceptionRecords.query.filter(InceptionRecords.filename == workorder.filename).all()
 
@@ -91,6 +90,7 @@ def OrderHistory():
                     'executetime': executedsql.executetime,
                     'opid_time': executedsql.sequence,
                     'exstatus': executedsql.exstatus,
+                    'errorinfo': executedsql.errorinfo
                 }
                 executedsqlsinfo.append(executedsqlinfo)
 
@@ -173,6 +173,9 @@ def rollback(woid):
                     db.session.add(rollback_info)
                     db.session.commit()
 
+                cur_execute.close()
+                conn_rollback.close()
+
         workorder = Workorder.query.filter_by(id=woid).first()
         # 将工单状态调整为已回滚
         workorder.status = 3
@@ -187,6 +190,7 @@ def rollback(woid):
     except Exception as e:
         error = str(e)
         flash(error)
+
 
     return redirect(url_for('OrderHistory.OrderHistory'))
 
@@ -306,20 +310,28 @@ def rollbackreview(woid):
         rollbackhost = s_host + rollback_dbname + table + condition
         cur.execute(rollbackhost)
         host = cur.fetchall()
-        rollback_host = host[0][0]
 
-        rollbacktbname = s_table + rollback_dbname + table + condition
-        cur.execute(rollbacktbname)
-        tbname = cur.fetchall()
-        rollback_tbname = tbname[0][0]
 
-        if rollback_tbname:
-            rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
-            cur.execute(rollbackstatement)
-            sql = cur.fetchall()
-            rollback_sql = sql[0][0]
+        rollback_tbname = ''
+        rollback_host = ''
+        if host:
+            rollback_host = host[0][0]
+
+            rollbacktbname = s_table + rollback_dbname + table + condition
+            cur.execute(rollbacktbname)
+            tbname = cur.fetchall()
+            rollback_tbname = tbname[0][0]
+
+            if rollback_tbname:
+                rollbackstatement = s_sql + rollback_dbname + '.' + rollback_tbname + condition
+                cur.execute(rollbackstatement)
+                sql = cur.fetchall()
+                rollback_sql = sql[0][0]
+
+            else:
+                rollback_sql = "查询回滚语句出错，请联系DBA处理！"
         else:
-            rollback_sql = "查询回滚语句出错，请联系DBA处理！;"
+            rollback_sql = "查询回滚语句出错，请联系DBA处理！"
 
         rollback_info = RollBack(woid=woid, opid_time=rollback_opidtime, sqltext=rollback_sql,
                                  tablename=rollback_tbname, dbname=rollback_dbname, host=rollback_host,

@@ -139,28 +139,31 @@ class Workorder(db.Model):
     stime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单开始时间')
     etime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单结束时间')
     applyreason = db.Column(db.String(254), nullable=False, default='', )  # comment='申请理由')
-    status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1通过，2未通过，3通过后被回滚')
+    status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1通过，2未通过，3执行后被回滚')
+    process_status = db.Column(db.SmallInteger, nullable=False, default=0, )
+    # comment='最终状态,0未定义，1为提交,2为经理审批通过,3是DBA审批通过,4经理驳回,5为DBA驳回')
+    process_otime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单状态变更时间')
 
     def __repr__(self):
         return '<Workorder %r>' % self.id
 
 
 # 流程表
-class WorkFlow(db.Model):
-    '''工作表'''
-    __tablename__ = 'workflow'
-    # 使用下面的配置进行解决
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
-    uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
-    uname = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
-    otime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='操作时间')
-    auditing = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1同意，2拒绝')
-    nowstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='当前走到了哪一步，0表示有问题的')
-    maxstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最大审批长度，0表示有问题的')
+# class WorkFlow(db.Model):
+#    '''工作表'''
+#    __tablename__ = 'workflow'
+#    # 使用下面的配置进行解决
+#    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+#    woid = db.Column(db.BigInteger, index=True, nullable=False, default=0, )  # comment='工单id')
+#    uid = db.Column(db.Integer, index=True, nullable=False, default=0, )  # comment='用户ID')
+#    uname = db.Column(db.String(20), nullable=False, default='', )  # comment='姓名')
+#    otime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='操作时间')
+#    auditing = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1同意，2拒绝')
+#    nowstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='当前走到了哪一步，0表示有问题的')
+#    maxstep = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最大审批长度，0表示有问题的')
 
-    def __repr__(self):
-        return '<WorkFlow %r>' % self.woid
+#    def __repr__(self):
+#        return '<WorkFlow %r>' % self.woid
 
 
 # goinception的记录表
@@ -191,6 +194,7 @@ class InceptionRecordsExecute(db.Model):
     sequence = db.Column(db.String(50), index=True, nullable=False, default=0, )  # comment='执行的sql块信息')
     exetime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='开始执行时间')
     sqltext = db.Column(db.Text, )  # comment='操作文本')
+    errorinfo = db.Column(db.Text, default='')  # comment='错误信息'）
     affrows = db.Column(db.Integer, nullable=False, default=0, )  # comment='影响的行数')
     executetime = db.Column(db.FLOAT, nullable=False, default=0.0, )  # comment='耗时多少秒')
     exstatus = db.Column(db.String(64), nullable=False, default=0, )  # comment='执行状态'

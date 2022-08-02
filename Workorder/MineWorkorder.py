@@ -13,7 +13,7 @@ from sqlalchemy import and_
 
 from login_required import login_required
 from config import Config
-from useddb.models import db, Dbs, InceptionRecords, Workorder, User, WorkFlow, DbsDept, Departments
+from useddb.models import db, Dbs, InceptionRecords, Workorder, User, DbsDept, Departments
 from . import MineWorkorders, send_dingding, send_mail
 
 path = Config.INCEPTION_PATH
@@ -22,6 +22,9 @@ path = Config.INCEPTION_PATH
 def goinceptionCheck(dbname, sqltext):
     # 根据数据库来查ip
     host_IP = Dbs.query.filter(Dbs.name == dbname).first()
+    if host_IP is None:
+        error = "库不存在"
+        return error
 
     # 接下来是连接goinception来进行SQL语法判定
     conn_goinception = pymysql.connect(
@@ -294,6 +297,9 @@ def MineWorkorder():
 
             # 调用goinceptioncheck获取check结果
             sqlresults = goinceptionCheck(dbnamelist[num], allsqls[num])
+            if sqlresults == '库不存在':
+                flash('[ {nodbname} ]'.format(nodbname=dbnamelist[num]) + sqlresults)
+                return render_template('workorder/MineWorkorder/MineWorkorder.html')
 
             for sqlresult in sqlresults:
 
@@ -389,11 +395,15 @@ def OrderCheck(newrecordsjson):
 
         user = User.query.filter_by(id=g.user.id).first()
 
+        current_time = int(round(time.time() * 10))
+
+        woid = int(str(current_day) + str(current_time))
+
         # 将数据写入工单表
-        workorder = Workorder(uid=user.id, deptid=user.deptId, username=user.name,
+        workorder = Workorder(id=woid, uid=user.id, deptid=user.deptId, username=user.name,
                               filename=filename, stime=datetime.datetime.now(),
                               etime=datetime.datetime.now(), applyreason=type_id,
-                              status=0)
+                              status=0, process_status=1, process_otime=datetime.datetime.now())
 
         try:
             db.session.add(workorder)
@@ -404,17 +414,19 @@ def OrderCheck(newrecordsjson):
 
         workorder_tmp = Workorder.query.filter_by(filename=filename).first()
 
-        # 将数据写入审批流表
-        workflow = WorkFlow(woid=workorder_tmp.id, uid=user.id, uname=user.name,
-                            otime=datetime.datetime.now(), auditing=0, nowstep=1,
-                            maxstep=3)
+# 这里想直接取消审批流表，再工单表中添加一个字段process_status，1为提交、2为经理审批通过、3是DBA审批通过、4经理驳回、5为DBA驳回
 
-        try:
-            db.session.add(workflow)
-            db.session.commit()
-        except Exception as e:
-            error = str(e)
-            flash(error)
+       # # 将数据写入审批流表
+       # workflow = WorkFlow(woid=workorder_tmp.id, uid=user.id, uname=user.name,
+       #                     otime=datetime.datetime.now(), auditing=0, nowstep=1,
+       #                     maxstep=3)
+
+       # try:
+       #     db.session.add(workflow)
+       #     db.session.commit()
+       # except Exception as e:
+       #     error = str(e)
+       #     flash(error)
 
         # 消息推送给部门经理
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()

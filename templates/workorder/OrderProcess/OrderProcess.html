@@ -71,16 +71,19 @@
                       <th style="width: 1%">
                           #
                       </th>
-                      <th style="width: 20%" class="text-center">
+                      <th style="width: 15%" class="text-center">
+                          工单编号
+                      </th>
+                      <th style="width: 15%" class="text-center">
                           工单创建时间
                       </th>
                       <th style="width: 10%" class="text-center">
                           工单提交者
                       </th>
-                      <th style="width: 10%" class="text-center">
+                      <th style="width: 8%" class="text-center">
                           上线类型
                       </th>
-                      <th style="width: 20%" class="text-center">
+                      <th style="width: 10%" class="text-center">
                           工单进度
                       </th>
                       <th style="width: 8%" class="text-center">
@@ -98,6 +101,9 @@
                           #
                       </td>
                       <td class="text-center">
+                          {{ workorderinfo['id'] }}
+                      </td>
+                      <td class="text-center">
                           Created At {{ workorderinfo['stime'] }}
                       </td>
                       <td class="text-center">
@@ -107,12 +113,12 @@
                           {{ workorderinfo['type'] }}
                       </td>
                       <td class="text-center">
-                          {% if workorderinfo['nowstep'] == 1 %}
+                          {% if workorderinfo['process_status'] == 1 %}
                               DBA已同意，待执行
                           {% endif %}
                       </td>
 
-                      {% if workorderinfo['auditing'] == 0 and workorderinfo['nowstep'] == 1%}
+                      {% if workorderinfo['process_status'] == 1 %}
                       <td class="text-center">
                           <span class="badge badge-success">已同意</span>
                       </td>

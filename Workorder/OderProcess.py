@@ -9,7 +9,7 @@ from sqlalchemy import and_
 
 from login_required import login_required
 from config import Config
-from useddb.models import WorkFlow, Workorder, db, Departments, InceptionRecordsExecute, User
+from useddb.models import Workorder, db, Departments, InceptionRecordsExecute, User
 from . import OrderProcesses, send_mail, send_dingding
 from .MineWorkorder import goinceptionCheck, goinceptionExecute
 
@@ -21,32 +21,6 @@ path = Config.INCEPTION_PATH
 def OrderProcess():
     # 定义列表
     workordersinfo = []
-    conn_workcheck = pymysql.connect(
-        host=Config.IP,
-        port=int(Config.PORT),
-        user=Config.MYSQLUSER,
-        password=Config.MYSQLPASSWORD
-    )
-
-    # 初始化inception数据库的游标
-    cur = conn_workcheck.cursor()
-    # 生成查询语句
-    s_sql = "select id from flask.workorder where id not in (select woid from flask.workflow);"
-    # 执行
-    cur.execute(s_sql)
-    # 获取id
-    ids = cur.fetchall()
-    if ids:
-        idss = str(ids)
-        # 更改格式
-        strs = idss.replace(',)', '').replace('((', '(').replace(' (', '')
-        # 生成删除语句
-        del_sql = "delete from flask.workorder where id in {ids};".format(ids=strs)
-        # 执行
-        cur.execute(del_sql)
-    # 关闭连接
-    cur.close()
-    conn_workcheck.close()
 
     # 查询工单，并以权限分类用户能看到的正在进行的工单
     if g.user.is_super():
@@ -60,15 +34,13 @@ def OrderProcess():
     g.order_count = len(workorders)
     for workorder in workorders:
         deptname = db.session.query(Departments.deptname).filter(Departments.id == workorder.deptid)
-        workflow = WorkFlow.query.filter(WorkFlow.woid == workorder.id).first()
         workorderinfo = {
             'id': workorder.id,
             'uname': workorder.username,
             'deptname': deptname,
             'stime': workorder.stime,
             'type': workorder.applyreason,
-            'nowstep': workflow.nowstep,
-            'auditing': workflow.auditing,
+            'process_status': workorder.process_status,
             'status': workorder.status
         }
         workordersinfo.append(workorderinfo)
@@ -86,7 +58,6 @@ def OrderDetail(id):
 
     # 查询对应的工单
     workorder = db.session.query(Workorder).filter_by(id=id).first()
-    workflow = db.session.query(WorkFlow).filter_by(woid=id).first()
     date = datetime.datetime.strptime(str(workorder.stime), '%Y-%m-%d %H:%M:%S').date()
     orderdate = str(date).replace('-', '')
 
@@ -119,21 +90,19 @@ def OrderDetail(id):
 
     # 当别的视图请求时
     if request.method == 'GET':
-        return render_template('workorder/OrderProcess/OrderDetail.html', sqlsinfo=sqlsinfo, workorder=workorder,
-                               workflow=workflow)
+        return render_template('workorder/OrderProcess/OrderDetail.html', sqlsinfo=sqlsinfo, workorder=workorder)
 
 
 ## 同意 ##
 @OrderProcesses.route('/agree/<woid>/', methods=['GET', 'POST'])
 @login_required
 def agree(woid):
-    workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
     workorder = Workorder.query.filter(Workorder.id == woid).first()
 
     # 经理审核
-    if workflow.nowstep == 1:
-        workflow.nowstep = 2
-        workflow.otime = datetime.datetime.now()
+    if workorder.process_status == 1:
+        workorder.process_status = 2
+        workorder.process_otime = datetime.datetime.now()
 
         # 消息推送DBA
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()
@@ -156,36 +125,32 @@ def agree(woid):
         # send_dingding(content, receive_DBA.ding)
 
     # DBA审核
-    elif workflow.nowstep == 2:
-        workflow.nowstep = 3
-        workflow.otime = datetime.datetime.now()
+    elif workorder.process_status == 2:
+        workorder.process_status = 3
+        workorder.process_otime = datetime.datetime.now()
 
-        if workflow.nowstep == workflow.maxstep:
-            workflow.auditing = 1
-            workflow.otime = datetime.datetime.now()
-            # 消息推送
-
-            send_dept = Departments.query.filter_by(id=workorder.deptid).first()
-            send_user = User.query.filter_by(name=workorder.username).first()
-            content = "您好，{confirm_user}，您的工单已通过审批，请执行：\n" \
-                      "审批单号：{woid}，\n" \
-                      "发起人：{user}，\n" \
-                      "发起部门：{dept}，\n" \
-                      "申请理由：{reason}\n\n" \
-                      "请登录DBAdmin查看待审批内容！\n地址：http://{ip}" \
-                .format(woid=workorder.id,
-                        user=send_user.name,
-                        dept=send_dept.deptname,
-                        reason=workorder.applyreason,
-                        confirm_user=send_user.name,
-                        ip=Config.WEB_IP
-                        )
-            # send_mail(content, send_user.email)
-            # send_dingding(content, send_user.ding)
+        # 消息推送
+        send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+        send_user = User.query.filter_by(name=workorder.username).first()
+        content = "您好，{confirm_user}，您的工单已通过审批，请执行：\n" \
+                  "审批单号：{woid}，\n" \
+                  "发起人：{user}，\n" \
+                  "发起部门：{dept}，\n" \
+                  "申请理由：{reason}\n\n" \
+                  "请登录DBAdmin查看待审批内容！\n地址：http://{ip}" \
+            .format(woid=workorder.id,
+                    user=send_user.name,
+                    dept=send_dept.deptname,
+                    reason=workorder.applyreason,
+                    confirm_user=send_user.name,
+                    ip=Config.WEB_IP
+                    )
+        # send_mail(content, send_user.email)
+        # send_dingding(content, send_user.ding)
 
     # 提交
     try:
-        db.session.add(workflow)
+        db.session.add(workorder)
         db.session.commit()
     except Exception as e:
         error = str(e)
@@ -218,7 +183,7 @@ def execute(woid):
         for sqlresult in sqlresults:
             # 记录执行结果
             executedsql = InceptionRecordsExecute(woid=woid, sequence=sqlresult[7], exetime=datetime.datetime.now(),
-                                                  sqltext=sqlresult[5], affrows=sqlresult[6], executetime=sqlresult[9],
+                                                  sqltext=sqlresult[5], errorinfo=sqlresult[4], affrows=sqlresult[6], executetime=sqlresult[9],
                                                   exstatus=sqlresult[3], extype=1, opid_time=sqlresult[7],
                                                   backup_dbname=sqlresult[8])
 
@@ -251,22 +216,44 @@ def execute(woid):
 def refused(woid):
     workorder = Workorder.query.filter(Workorder.id == woid).first()
 
-    workflow = WorkFlow.query.filter(WorkFlow.woid == woid).first()
-
     # 表示工单未通过
     workorder.status = 2
 
     # 表示在审批流中被拒绝
-    workflow.auditing = 2
-    workflow.otime = datetime.datetime.now()
+    if workorder.process_status == 1:
+        workorder.process_status = 4  # 表示经理驳回
+        workorder.process_otime = datetime.datetime.now()
+
+    if workorder.process_status == 2:
+        workorder.process_status = 5  # 表示DBA驳回
+        workorder.process_otime = datetime.datetime.now()
 
     # 提交
     try:
-        db.session.add(workorder, workflow)
+        db.session.add(workorder)
         db.session.commit()
     except Exception as e:
         error = str(e)
         flash(error)
+
+        # 消息推送
+        send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+        send_user = User.query.filter_by(name=workorder.username).first()
+        content = "您好，{confirm_user}，您的工单已被驳回：\n" \
+                  "审批单号：{woid}，\n" \
+                  "发起人：{user}，\n" \
+                  "发起部门：{dept}，\n" \
+                  "申请理由：{reason}\n\n" \
+                  "请登录DBAdmin查看！\n地址：http://{ip}" \
+            .format(woid=workorder.id,
+                    user=send_user.name,
+                    dept=send_dept.deptname,
+                    reason=workorder.applyreason,
+                    confirm_user=send_user.name,
+                    ip=Config.WEB_IP
+                    )
+        # send_mail(content, send_user.email)
+        # send_dingding(content, send_user.ding)
 
     return redirect(url_for('OrderProcess.OrderProcess'))
 
@@ -277,7 +264,6 @@ def refused(woid):
 def cancel(woid):
     try:
         db.session.query(Workorder).filter(Workorder.id == woid).delete()
-        db.session.query(WorkFlow).filter(WorkFlow.woid == woid).delete()
         db.session.commit()
     except Exception as e:
         error = str(e)

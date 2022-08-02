@@ -18,9 +18,9 @@ OrderHistories = Blueprint('OrderHistory', __name__)
 
 def send_mail(content, receiverMail):
     # 发送者邮箱地址
-    senderMail = '@.com'
+    senderMail = '**********@**.com'
     # 发送者邮箱授权码
-    authcode = ''
+    authcode = '*********'
 
     # 邮箱主题
     subject = 'DBAdmin通知！'
@@ -72,7 +72,7 @@ def send_dingding(content, receive_user):
     # 给用户发送工作通知
     url = 'https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2?access_token=' + access_token
     _data = {
-        'agent_id': ,
+        'agent_id': 1592905030,
         'userid_list': receive_user,
         'msg': {
             'msgtype': 'text',
