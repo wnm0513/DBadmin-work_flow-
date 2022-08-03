@@ -446,7 +446,7 @@ def OrderCheck(newrecordsjson):
                     ip=Config.WEB_IP
                     )
         # send_mail(content, receive_dept_manager.email)
-        # send_dingding(content, receive_dept_manager.ding)
+        send_dingding(content, receive_dept_manager.ding)
 
         return redirect(url_for('OrderProcess.OrderProcess'))
 

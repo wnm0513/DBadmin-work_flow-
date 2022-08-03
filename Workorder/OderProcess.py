@@ -107,7 +107,7 @@ def agree(woid):
         # 消息推送DBA
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()
         receive_DBA = User.query.filter_by(id=4).first()
-        send_user = User.query.filter_by(name=workorder.username).first()
+        send_user = User.query.filter_by(id=workorder.uid).first()
         content = "您好，{confirm_user}，有新的工单待您审批：\n" \
                   "审批单号：{woid}，\n" \
                   "发起人：{user}，\n" \
@@ -122,7 +122,7 @@ def agree(woid):
                     ip=Config.WEB_IP
                     )
         # send_mail(content, receive_DBA.email)
-        # send_dingding(content, receive_DBA.ding)
+        send_dingding(content, receive_DBA.ding)
 
     # DBA审核
     elif workorder.process_status == 2:
@@ -131,8 +131,8 @@ def agree(woid):
 
         # 消息推送
         send_dept = Departments.query.filter_by(id=workorder.deptid).first()
-        send_user = User.query.filter_by(name=workorder.username).first()
-        content = "您好，{confirm_user}，您的工单已通过审批，请执行：\n" \
+        send_user = User.query.filter_by(id=workorder.uid).first()
+        content = "您好，{confirm_user}，您的工单已通过审批，请确认后执行：\n" \
                   "审批单号：{woid}，\n" \
                   "发起人：{user}，\n" \
                   "发起部门：{dept}，\n" \
@@ -146,7 +146,7 @@ def agree(woid):
                     ip=Config.WEB_IP
                     )
         # send_mail(content, send_user.email)
-        # send_dingding(content, send_user.ding)
+        send_dingding(content, send_user.ding)
 
     # 提交
     try:
@@ -195,7 +195,7 @@ def execute(woid):
                 error = str(e)
                 flash(error)
 
-    # 表示工单已通过
+    # 表示工单已完成
     workorder.status = 1
     workorder.etime = datetime.datetime.now()
 
@@ -236,24 +236,24 @@ def refused(woid):
         error = str(e)
         flash(error)
 
-        # 消息推送
-        send_dept = Departments.query.filter_by(id=workorder.deptid).first()
-        send_user = User.query.filter_by(name=workorder.username).first()
-        content = "您好，{confirm_user}，您的工单已被驳回：\n" \
-                  "审批单号：{woid}，\n" \
-                  "发起人：{user}，\n" \
-                  "发起部门：{dept}，\n" \
-                  "申请理由：{reason}\n\n" \
-                  "请登录DBAdmin查看！\n地址：http://{ip}" \
-            .format(woid=workorder.id,
-                    user=send_user.name,
-                    dept=send_dept.deptname,
-                    reason=workorder.applyreason,
-                    confirm_user=send_user.name,
-                    ip=Config.WEB_IP
-                    )
-        # send_mail(content, send_user.email)
-        # send_dingding(content, send_user.ding)
+    # 消息推送
+    send_dept = Departments.query.filter_by(id=workorder.deptid).first()
+    send_user = User.query.filter_by(id=workorder.uid).first()
+    content = "您好，{confirm_user}，您的工单已被驳回：\n" \
+              "审批单号：{woid}，\n" \
+              "发起人：{user}，\n" \
+              "发起部门：{dept}，\n" \
+              "申请理由：{reason}\n\n" \
+              "请登录DBAdmin查看！\n地址：http://{ip}" \
+        .format(woid=workorder.id,
+                user=send_user.name,
+                dept=send_dept.deptname,
+                reason=workorder.applyreason,
+                confirm_user=send_user.name,
+                ip=Config.WEB_IP
+                )
+    # send_mail(content, send_user.email)
+    send_dingding(content, send_user.ding)
 
     return redirect(url_for('OrderProcess.OrderProcess'))
 

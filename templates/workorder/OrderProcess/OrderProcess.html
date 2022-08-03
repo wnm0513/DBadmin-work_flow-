@@ -114,19 +114,48 @@
                       </td>
                       <td class="text-center">
                           {% if workorderinfo['process_status'] == 1 %}
-                              DBA已同意，待执行
+                              待部门经理审批
+                          {% endif %}
+                          {% if workorderinfo['process_status'] == 2 %}
+                              待DBA审批
+                          {% endif %}
+                          {% if workorderinfo['process_status'] == 3 %}
+                              已通过审批，待执行
                           {% endif %}
                       </td>
 
-                      {% if workorderinfo['process_status'] == 1 %}
+                      {% if workorderinfo['process_status'] == 3 %}
                       <td class="text-center">
                           <span class="badge badge-success">已同意</span>
                       </td>
+                      {% else %}
+                      <td class="text-center">
+                          <span class="badge badge-info">审批中</span>
+                      </td>
+                      {% endif %}
                       <td class="project-actions text-center">
                           <a class="btn btn-primary btn-sm" href="{{ url_for('OrderProcess.OrderDetail', id=workorderinfo['id']) }}">
                               查看详情
                           </a>
-                          {% if g.user.name == workorderinfo.uname %}
+                          {% if g.user.ismanager == 1 and workorderinfo['process_status'] == 1 %}
+                          <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
+                              同意
+                          </a>
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
+                              驳回
+                          </a>
+                          {% endif %}
+
+                          {% if g.user.issuper == 1 and workorderinfo['process_status'] == 2 %}
+                           <a class="btn btn-success btn-sm" href="{{ url_for('OrderProcess.agree', woid=workorderinfo['id']) }}">
+                              同意
+                          </a>
+                          <a class="btn btn-danger btn-sm" href="{{ url_for('OrderProcess.refused', woid=workorderinfo['id']) }}">
+                              驳回
+                          </a>
+                          {% endif %}
+
+                          {% if g.user.name == workorderinfo.uname and workorderinfo['process_status'] == 3 %}
                           <a class="btn btn-success btn-sm" onclick="return myFunction()"  href="{{ url_for('OrderProcess.execute', woid=workorderinfo['id']) }}">
                               执行
                           </a>
@@ -135,7 +164,6 @@
                           </a>
                           {% endif %}
                       </td>
-                      {% endif %}
                   </tr>
 
 

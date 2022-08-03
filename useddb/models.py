@@ -139,7 +139,7 @@ class Workorder(db.Model):
     stime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单开始时间')
     etime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单结束时间')
     applyreason = db.Column(db.String(254), nullable=False, default='', )  # comment='申请理由')
-    status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0未定义，1通过，2未通过，3执行后被回滚')
+    status = db.Column(db.SmallInteger, nullable=False, default=0, )  # comment='最终状态,0进行中，1完成，2被驳回，3完成后被回滚')
     process_status = db.Column(db.SmallInteger, nullable=False, default=0, )
     # comment='最终状态,0未定义，1为提交,2为经理审批通过,3是DBA审批通过,4经理驳回,5为DBA驳回')
     process_otime = db.Column(db.DATETIME, default=datetime.datetime.now(), nullable=False, )  # comment='工单状态变更时间')
